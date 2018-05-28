@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    font-family: arial, Microsoft JhengHei;
+    color: #4a4a4a;
+    background-color: rgb(80, 80, 80);
+}
+.container{
+    background-color: #F4F4F4;
+}
+#content {
+    padding-top: 50px;
+    padding-bottom: 30px;
+    margin: 50px auto;
+    width: 50%;
+    background-color: rgba(223,223,224,0.5);
+    border-radius: 10px;
+}
+#top {
+    background-color: #337AB7;
+    height: 80px;
+    font-size: 300%;
+    line-height: 80px;
+    color: #ffdf32;
+}
+.form-control{
+    width: 50%;
+    height: 35px;
+    border-radius: 5px;
+    display:inline;
+    margin-bottom: 15px;
+}
+.form-group span{
+    color: red;
+    font-size: 14px;
+}
