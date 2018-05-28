@@ -26,28 +26,23 @@ $(document).ready(function () {
             window.location.href = "index.html";
         }else{
             alert("密码验证失败");
+            $("#loginBut").button('reset');
         }
-        // $.ajax({
-        //     type: "POST",
-        //     url: $("#loginURL").val(),
-        //     dataType: 'json',
-        //     contentType:"application/json",
-        //     data: JSON.stringify(info),
-        //     success: function (data) {
-        //         $("#loginBut").button('reset');
-        //         if(data.state){
-        //             //验证通过：保存token到浏览器缓存中 跳转主页 主页每个请求去缓存中读取 token
-        //             var date=new Date();
-        //             date.setTime(date.getTime()+24*60*60*1000); //设置date为当前时间+1天
-        //             document.cookie="avus_token="+data.token+";expires="+date.toGMTString();
-        //             document.cookie="avus_userName="+data.userName+";expires="+date.toGMTString();
-        //             window.location.href = "homepage.html";
-        //         }else{
-        //             //验证失败：给出提示信息
-        //             alert("用户名和密码不匹配");
-        //         }
-        //     }
-        // });
     });
 });
-
+/**
+ * 验证用户是否登录
+ * @param user 用户
+ */
+function verifyUse(user) {
+    if (user.userName == USERNAME && hex_md5(user.password) == hex_md5(hex_md5(PASSWORD))) {//验证用户通过
+        //保存cookie
+        let date = new Date();
+        date.setTime(date.getTime() + 24 * 60 * 60 * 1000); //设置date为当前时间+1天
+        document.cookie = "userName=" + user.userName + ";expires=" + date.toGMTString();
+        document.cookie = "password=" + hex_md5(user.password) + ";expires=" + date.toGMTString();
+        return true;
+    } else {
+        return false;
+    }
+}
