@@ -1,0 +1,283 @@
+.car-status-content, .car-info-content {
+    width: 100%;
+    padding: 4% 0;
+    overflow: hidden;
+}
+
+.car-info-content {
+    border-top: 1px solid #ccc;;
+}
+.car-status, .car-info {
+    width: 68%;
+    margin: 0 auto;
+}
+
+.car-modal {
+    width: 23%;
+    float: left;
+}
+
+.car-modal-title {
+    width: 100%;
+    font-size: 18px;
+    text-align: center;
+}
+
+/*1200以下的尺寸*/
+@media (max-width: 1200px) {
+    .car-modal-title,.remote-control > p,.car-info > div {
+        height: 40px;
+        line-height: 40px;
+    }
+}
+
+/*1200以上的尺寸*/
+@media (min-width: 1200px) {
+    .car-modal-title,.remote-control > p,.car-info > div {
+        height: 60px;
+        line-height: 60px;
+    }
+}
+
+.car-modal > .car-modal-body {
+    width: 100%;
+    position: relative;
+}
+
+.car-modal-body > .car-modal-img {
+    width: 100%;
+}
+
+.door-unlock-right-up {
+    position: absolute;
+    width: 37%;
+    top: 35%;
+    right: -25%;
+}
+
+.door-open-right {
+    position: absolute;
+    width: 25%;
+    top: 46%;
+    right: -10%;
+}
+
+.door-unlock-left-up {
+    position: absolute;
+    width: 37%;
+    top: 35%;
+    left: -25%;
+}
+
+.door-open-left {
+    position: absolute;
+    width: 25%;
+    top: 46%;
+    left: -10%;
+}
+
+.door-unlock-left-down {
+    position: absolute;
+    width: 37%;
+    top: 58%;
+    left: -25%;
+}
+
+.door-unlock-right-down {
+    position: absolute;
+    width: 37%;
+    top: 58%;
+    right: -25%;
+}
+.door-unlock,.door-open {
+    display: none;
+}
+
+.remote-control {
+    width: 37%;
+    border-radius: 8px;
+    background-color: rgba(224, 224, 224, 0.1);
+    border: solid 1px rgba(151, 144, 144, 0.3);
+    padding: 2% 5%;
+    float: right;
+    margin-top: 18%;
+}
+
+.remote-control > p {
+    font-size: 18px;
+}
+
+.remote-item > div:nth-child(1) {
+    float: left;
+}
+
+.remote-item > div:nth-child(2) {
+    margin-top: 3px;
+    height: 53px;
+    float: right;
+}
+
+.remote-control > .remote-item {
+    line-height: 60px;
+    overflow: hidden;
+
+}
+
+ .honk-button {
+    width: 95px;
+    margin-top: 6px;
+    line-height: 40px;
+    height: 40px;
+    color: white;
+    border-radius: 4px;
+    background-color: #1e99f9;
+    border: solid 1px #1792db;
+}
+
+.honk-button:before {
+    content: " ";
+    width: 42px;
+    display: inline-block;
+    margin-top: -2px;
+    height: 40px;
+    float: left;
+    background-image: url(../img/icon_honk.png);
+}
+
+.active-honk-button {
+    background-color: #40caff;
+    border: solid 1px #60aae3;
+}
+
+.honk-button:hover {
+    cursor: pointer;
+}
+
+.active-honk-button {
+    cursor: pointer;
+}
+.remote-button >img:hover {
+    cursor: pointer;
+}
+
+.active-honk-button:before {
+    content: " ";
+    width: 42px;
+    display: inline-block;
+    margin-top: -2px;
+    height: 40px;
+    float: left;
+    background-image: url(../img/icon_honking.png);
+}
+
+.honk-button > img {
+    float: left;
+    height: 100%;
+}
+
+.car-info > p {
+    font-size: 18px;
+    height: 60px;
+    line-height: 60px;
+    margin-left: 4%;
+}
+
+.car-info > div {
+    margin-left: 4%;
+}
+
+.car-info > .device-item > p {
+    width: 36%;
+    height: 100%;
+    display: inline-block;
+}
+
+.car-info > .device-item > div {
+    width: 36%;
+    float: right;
+    padding-left: 3%;
+    height: 100%;
+    display: inline-block;
+}
+
+.location-item > div {
+    height: 100%;
+    display: inline-block;
+}
+
+.location-item > .small-map-content {
+    position: relative;
+
+}
+
+.small-map-content > img {
+    height: 70%;
+    vertical-align: middle;
+    margin-bottom: 5px;
+
+}
+
+.small-map {
+    visibility: hidden;
+    width: 509%;
+    height: 300%;
+    border: solid 1px #989EA1;
+    border-radius: 4px;
+    position: absolute;
+    top: -91%;
+    left: 126%;
+}
+
+.location-item > .small-map-content:hover {
+    cursor: pointer;
+}
+
+.small-map-content:hover .small-map {
+    visibility: visible;
+}
+
+.fw-version {
+    height: 120px !important;
+    overflow: hidden;
+}
+
+.fw-version > .info-label {
+    float: left;
+    width: 36%;
+}
+
+.fw-version > .fw-version-right {
+    width: 36%;
+    float: right;
+    padding-left: 3%;
+}
+
+.fw-version-right button {
+    /*width: 38%;*/
+    line-height: 40px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.updating:hover {
+    cursor: not-allowed;
+}
+
+.update-fw:hover {
+    cursor: pointer;
+}
+
+.fw-version-right > p {
+    height: 40px;
+}
+
+.update-fw {
+    background-color: #1e99f9;
+    border: solid 1px #1792db;
+}
+.updating {
+    outline: none;
+    background-color: #A9B1B5;
+    border: solid 1px #989EA1;
+}

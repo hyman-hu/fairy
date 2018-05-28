@@ -1,0 +1,1897 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TinkerPop3  Gremlin 学习笔记</title>
+<link rel="stylesheet" href="https://csdn.net/res-min/themes/base.css" />
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"},extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"] } });
+</script>
+</head>
+<body><div class="container"><h3 id="tinkerpop-gremlin基础概念">TinkerPop Gremlin基础概念</h3>
+
+<ul>
+<li>图计算在结构（图）和过程（遍历）之间进行区分。 <br>
+<ul><li>图的<code>结构</code>是由顶点/边/属性拓扑定义的数据模型。</li>
+<li>图的<code>过程</code>是分析结构的手段。图形处理的典型形式称为 <code>遍历</code>。</li></ul></li>
+<li><p>TinkerPop3 结构 API的主要组件:</p>
+
+<ul><li><p>Graph：维护一组顶点和边，并访问数据库函数（如<code>事务</code>）。</p></li>
+<li><p>Element：维护一组属性和一个表示元素类型的字符串<code>标签</code>。</p></li>
+<li><p>Vertex：扩展Element并维护一组传入和传出<code>顶点</code>。</p></li>
+<li><p>Edge：扩展Element并维护传入和传出<code>边缘</code>。</p></li>
+<li><p>Property<code>&lt;V&gt;</code>：与V值关联的字符串键。</p></li>
+<li><p>VertexProperty<code>&lt;V&gt;</code>：与V值关联的字符串键以及Property<code>&lt;U&gt;</code>属性集合（仅限顶点） </p></li></ul></li>
+<li><p>TinkerPop3 过程 API的主要组件 </p>
+
+<ul><li><p>TraversalSource：针对特定图形，域特定语言（DSL）和执行引擎的遍历生成器。</p></li>
+<li><p>Traversal<code>&lt;S,E&gt;</code>：将类型的S对象转换为类型对象的功能数据流程E。</p></li>
+<li><p>GraphTraversal：面向原始图的语义（即顶点，边等）的遍历DSL。</p></li>
+<li><p>GraphComputer：一个并行处理图形并且可能分布在多机群集上的系统。</p></li>
+<li><p>VertexProgram：在所有顶点以逻辑并行方式执行的代码，通过消息传递进行相互通信。</p></li>
+<li><p>MapReduce：并行分析图中所有顶点并产生单个减少结果的计算。</p></li></ul></li>
+</ul>
+
+
+
+<h4 id="图形结构">图形结构</h4>
+
+<ul>
+<li>图<code>结构</code>: <br>
+<ul><li>图的结构是由其顶点，边和属性之间的显式引用形成的拓扑。</li>
+<li>顶点具有入射边。如果一个顶点共享一个入射边，则该顶点与另一个顶点相邻。</li>
+<li>一个属性附加到一个元素上，一个元素具有一组属性。属性是一个键/值对，其中键总是一个字符String。</li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm">Graph graph = TinkerGraph<span class="hljs-preprocessor">.open</span>()<span class="hljs-comment">; //1.创建一个新的内存TinkerGraph并将其分配给该变量graph。</span>
+Vertex marko = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"person"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">1</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"marko"</span>, <span class="hljs-string">"age"</span>, <span class="hljs-number">29</span>)<span class="hljs-comment">; //2.创建一个顶点以及一组键/值对T.label作为顶点标签并且T.id是顶点ID。</span>
+Vertex vadas = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"person"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"vadas"</span>, <span class="hljs-string">"age"</span>, <span class="hljs-number">27</span>)<span class="hljs-comment">;</span>
+Vertex lop = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"software"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">3</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"lop"</span>, <span class="hljs-string">"lang"</span>, <span class="hljs-string">"java"</span>)<span class="hljs-comment">;</span>
+Vertex josh = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"person"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">4</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"josh"</span>, <span class="hljs-string">"age"</span>, <span class="hljs-number">32</span>)<span class="hljs-comment">;</span>
+Vertex ripple = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"software"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">5</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"ripple"</span>, <span class="hljs-string">"lang"</span>, <span class="hljs-string">"java"</span>)<span class="hljs-comment">;</span>
+Vertex peter = graph<span class="hljs-preprocessor">.addVertex</span>(T<span class="hljs-preprocessor">.label</span>, <span class="hljs-string">"person"</span>, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">6</span>, <span class="hljs-string">"name"</span>, <span class="hljs-string">"peter"</span>, <span class="hljs-string">"age"</span>, <span class="hljs-number">35</span>)<span class="hljs-comment">;</span>
+marko<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"knows"</span>, vadas, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">7</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">0.5</span>f)<span class="hljs-comment">; //3.边缘标签被指定为第一个参数的同时创建边缘以及一组键/值对。</span>
+marko<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"knows"</span>, josh, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">8</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">1.0</span>f)<span class="hljs-comment">;</span>
+marko<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"created"</span>, lop, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">9</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">0.4</span>f)<span class="hljs-comment">;</span>
+josh<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"created"</span>, ripple, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">10</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">1.0</span>f)<span class="hljs-comment">;</span>
+josh<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"created"</span>, lop, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">11</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">0.4</span>f)<span class="hljs-comment">;</span>
+peter<span class="hljs-preprocessor">.addEdge</span>(<span class="hljs-string">"created"</span>, lop, T<span class="hljs-preprocessor">.id</span>, <span class="hljs-number">12</span>, <span class="hljs-string">"weight"</span>, <span class="hljs-number">0.2</span>f)<span class="hljs-comment">;</span></code></pre>
+
+<ul>
+<li>实例分析： <br>
+<ul><li>首先创建所有顶点<code>Graph.addVertex(Object…​)</code>，然后创建它们各自的边<code>Vertex.addEdge(String,Vertex,Object…​)</code>。有两个“访问者令牌”： T.id和T.label。</li>
+<li>相应的元素连同提供的键/值对属性一起被创建<code>"name", "josh", "age", 32</code>。</li></ul></li>
+</ul>
+
+
+
+<h4 id="遍历过程">遍历过程</h4>
+
+<ul>
+<li><p>图表<code>过程</code></p>
+
+<ul><li><p>GraphTraversalSource提供了两种遍历方法:</p>
+
+<ul><li>GraphTraversalSource.V(Object…​ ids)：生成从图中顶点开始的遍历（如果没有提供id，则为所有顶点）。</li>
+<li>GraphTraversalSource.E(Object…​ ids)：生成从图中边缘开始的遍历（如果没有提供id，则为所有边）。</li>
+<li>返回类型V()和E()是GraphTraversal。</li>
+<li><p>每种方法GraphTraversal称为一个步骤，每个步骤以五种常规方式之一调整前一步骤的结果。</p>
+
+<ul><li><p>map：将传入的遍历器的对象转换为另一个对象（S→E）。</p></li>
+<li><p>flatMap：将传入的遍历器的对象转换为其他对象的迭代器（S→E *）。</p></li>
+<li><p>filter：允许或禁止移动机进行下一步（S→E→S）。</p></li>
+<li><p>sideEffect：允许移动者不改变，但在过程中产生一些计算副作用（S↬S）。</p></li></ul></li>
+<li><p>branch：分割移动器并将每个发送到遍历中的任意位置（S→{S 1 →E <em>，…，S n →E </em>}→E *）。</p></li></ul></li>
+<li>Nearly every step in GraphTraversal either extends MapStep, FlatMapStep, FilterStep, SideEffectStep, or BranchStep.</li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">$ bin/gremlin.sh
+
+         \,,,/
+         (o o)
+-----oOOo-(<span class="hljs-number">3</span>)-oOOo-----
+gremlin&gt; graph = TinkerFactory.createModern() <span class="hljs-comment">//1.打开玩具图并通过变量引用它graph。</span>
+==&gt;tinkergraph[vertices:<span class="hljs-number">6</span> edges:<span class="hljs-number">6</span>]
+gremlin&gt; g = graph.traversal()        <span class="hljs-comment">//2.使用标准的OLTP遍历引擎从图中创建一个图遍历源。</span>
+==&gt;graphtraversalsource[tinkergraph[vertices:<span class="hljs-number">6</span> edges:<span class="hljs-number">6</span>], standard]
+gremlin&gt; g.V().has(<span class="hljs-string">'name'</span>,<span class="hljs-string">'marko'</span>).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//3.从遍历源中产生一个遍历，以确定标记顶点知道的人的名字。</span>
+==&gt;vadas
+==&gt;josh</code></pre>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; marko = g.V().has(<span class="hljs-string">'name'</span>,<span class="hljs-string">'marko'</span>).next() <span class="hljs-comment">//1.将变量设置为名为“marko” marko的图形中的顶点g。</span>
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(marko).out(<span class="hljs-string">'knows'</span>) <span class="hljs-comment">//2.通过知识边获取与标记顶点相邻的传出顶点。</span>
+==&gt;v[<span class="hljs-number">2</span>]
+==&gt;v[<span class="hljs-number">4</span>]
+gremlin&gt; g.V(marko).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//3.获取marko-vertex的朋友的名字。</span>
+==&gt;vadas
+==&gt;josh</code></pre>
+
+<ul>
+<li>遍历器的路径历史记录</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V(marko).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>).path()
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">2</span>],vadas]
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">4</span>],josh]</code></pre>
+
+<ul>
+<li>遍历器遍历遍历表达式的特定部分（即循环）的次数</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V(marko).repeat(out()).times(2).values('name')
+=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;lop</span></code></pre>
+
+
+
+<h4 id="顶点属性">顶点属性</h4>
+
+<ul>
+<li>a的所有属性Vertex都是a VertexProperty。A VertexProperty实现Property，因此它有一个键/值对。</li>
+<li>但是，VertexProperty也可以实现Element并因此可以具有键/值对的集合</li>
+<li>虽然Edge只能有一个“name”键的属性，但是Vertex可以有多个“name”属性。通过包含顶点属性，引入了两个功能，最终推进了图形建模工具包：  <br>
+<ul><li>多个属性（多属性）：顶点属性键可以有多个值。例如，一个顶点可以有多个“name”属性。</li>
+<li>Properties on properties（元属性）：顶点属性可以具有属性（即，顶点属性可以具有与其关联的键/值数据）</li></ul></li>
+</ul>
+
+
+
+<h4 id="图事务">图事务</h4>
+
+<ul>
+<li>一个数据库事务 代表的工作单位来对数据库执行。</li>
+<li>事务由Transaction接口的实现控制， 并且该对象可以Graph使用该tx()方法从接口获取。</li>
+<li>请注意，该Transaction对象本身并不代表“事务”。它只是公开了处理事务的方法（例如提交，回滚等）。</li>
+<li>大部分Graph是实现supportsTransactions将实现“自动” ThreadLocal交易，这意味着当后一个读或写操作时Graph被实例化，事务就会自动线程内开始。</li>
+<li>没有必要手动调用一个方法来“创建”或“启动”一个事务。只需根据需要修改图形，然后致电graph.tx().commit()以应用更改或graph.tx().rollback()撤消它们。当下一个读取或写入操作发生在图上时，将在当前执行线程中启动一个新的事务。</li>
+</ul>
+
+
+
+<h4 id="遍历">遍历</h4>
+
+<ul>
+<li><p>遍历由四个主要组成部分组成：</p>
+
+<ul><li><p>Step<code>&lt;S,E&gt;</code>：应用于S产出的单个函数E。步骤在遍历内链接。</p></li>
+<li><p>TraversalStrategy：拦截器方法来改变遍历的执行（例如查询重写）。</p></li>
+<li><p>TraversalSideEffects：可用于存储有关遍历的全局信息的键/值对。</p></li>
+<li><p>Traverser<code>&lt;T&gt;</code>：通过Traversal当前表示类型的对象传播的对象T。</p></li></ul></li>
+<li>图形遍历的经典概念GraphTraversal<code>&lt;S,E&gt;</code>由此扩展而来Traversal<code>&lt;S,E&gt;</code>。 GraphTraversal根据顶点，边缘等提供对图数据的解释，并因此提供图遍历DSL。 <br>
+<img src="https://img-blog.csdn.net/20180514193329985?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3MjA0NDkx/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述" title=""></li>
+<li><p>该Traverser<code>&lt;S&gt;</code>对象可以访问：</p>
+
+<ul><li><p>当前遍历的S对象 -  Traverser.get()。</p></li>
+<li><p>遍历器遍历的当前路径 -  Traverser.path()。</p></li>
+<li><p>获取特定路径历史对象的助手速记 -  Traverser.path(String) == Traverser.path().get(String)。</p></li>
+<li><p>遍历器通过当前循环的次数 -  Traverser.loops()。</p></li>
+<li><p>这个遍历器表示的对象的数量 -  Traverser.bulk()。</p></li>
+<li><p>与此遍历器相关的本地数据结构 -  Traverser.sack()。</p></li>
+<li><p>与遍历相关的副作用 -  Traverser.sideEffects()。</p></li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V(1).out().values('name') //1.从顶点1到相邻顶点的名称值的传出遍历。
+=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;josh
+</span>gremlin&gt; g.V(1).out().map {it.get().value('name')} //2.相同的操作，但使用lambda来访问名称属性值。
+=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;josh
+</span>gremlin&gt; g.V(1).out().map(values('name')) //3.同样的操作，但使用遍历表示map()。
+=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;josh</span></code></pre>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().filter {it.get().label() == 'person'} //1.如果过滤器具有“人物”标签，则只允许顶点通过
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]
+</span>gremlin&gt; g.V().filter(label().is('person')) //2.如果过滤器具有“人物”标签，则只允许顶点通过
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]
+</span>gremlin&gt; g.V().hasLabel('person') //3.更具体的步骤has()是filter()用各自的谓词来实现的。
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]</span></code></pre>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().branch {it.get().value('name')}.
+               option('marko', values('age')).
+               option(none, values('name')) //1.如果顶点是“marko”，则获取他的年龄，否则获取顶点的名称。
+=<span class="ruby">=&gt;<span class="hljs-number">29</span>
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>gremlin&gt; g.V().branch(values('name')).
+               option('marko', values('age')).
+               option(none, values('name')) //2.相同的操作，但使用遍历表示branch()。
+=<span class="ruby">=&gt;<span class="hljs-number">29</span>
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>gremlin&gt; g.V().choose(has('name','marko'),
+                      values('age'),
+                      values('name')) //3.更具体的基于布尔的步骤choose()被实现为a branch()。
+=<span class="ruby">=&gt;<span class="hljs-number">29</span>
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter</span></code></pre>
+
+
+
+<h4 id="terminal">Terminal</h4>
+
+<ul>
+<li>通常，当一个步骤连接到一个遍历时，返回一个遍历。通过这种方式，流畅的，单点式的遍历就可以建立起来。</li>
+<li>但是，某些步骤不会返回遍历，而是执行遍历并返回结果。这些步骤被称为终端步骤（终端）</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().out('created').hasNext() //1.hasNext() 确定是否有可用的结果。
+=<span class="ruby">=&gt;<span class="hljs-keyword">true</span>
+</span>gremlin&gt; g.V().out('created').next() //2.next() 将返回下一个结果。
+=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>gremlin&gt; g.V().out('created').next(2) //3.next(n)将返回n列表中的下一个结果。
+=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>gremlin&gt; g.V().out('nothing').tryNext() //4.tryNext()将返回一个Optional，因此，是hasNext()/ 的组合next()。
+=<span class="ruby">=&gt;<span class="hljs-constant">Optional</span>.empty
+</span>gremlin&gt; g.V().out('created').toList() //5.tryNext()将返回一个Optional，因此，是hasNext()/ 的组合next()。
+=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>gremlin&gt; g.V().out('created').toSet() //6.toSet() 将返回一个集合中的所有结果（因此，重复删除）。
+=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>gremlin&gt; g.V().out('created').toBulkSet() //7.toBulkSet() 将返回加权集合中的所有结果（因此，通过加权保留重复）。
+=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>gremlin&gt; results = ['blah',3]
+=<span class="ruby">=&gt;blah
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3</span>
+</span>gremlin&gt; g.V().out('created').fill(results) //8.fill(collection) 会将所有结果放入提供的集合中，并在完成时返回集合。
+=<span class="ruby">=&gt;blah
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3</span>
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>gremlin&gt; g.addV('person').iterate() // 9.iterate() 并不完全符合终端步骤的定义，因为它不返回结果，但仍然返回一个遍历 - 但它确实表现为终端步骤，它重复遍历并生成副作用而不返回实际结果。</code></pre>
+
+
+
+<h4 id="addedge">AddEdge</h4>
+
+<ul>
+<li><code>推理</code>是明确数据中隐含的内容的过程.</li>
+<li>图中<code>显式</code>的是图的对象 - 即<code>顶点</code>和<code>边</code>。</li>
+<li>图中<code>隐含</code>的是<code>遍历</code>。 <br>
+<ul><li>换句话说，遍历揭示了意义由遍历定义确定的位置。</li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs markdown">gremlin&gt; g.V(1).as('a').out('created').in('created').where(neq('a')).
+<span class="hljs-code">           addE('co-developer').from('a').property('year',2009) //1.在marko和他的合作者之间添加一个年度财产的合作开发者边缘。</span>
+==&gt;e[<span class="hljs-link_label">13</span>][<span class="hljs-link_reference">1-co-developer-&gt;4</span>]
+==&gt;e[<span class="hljs-link_label">14</span>][<span class="hljs-link_reference">1-co-developer-&gt;6</span>]
+gremlin&gt; g.V(3,4,5).aggregate('x').has('name','josh').as('a').
+<span class="hljs-code">           select('x').unfold().hasLabel('software').addE('createdBy').to('a') //2.将来自josh顶点的传入createdBy边添加到lop和波纹顶点。</span>
+==&gt;e[<span class="hljs-link_label">15</span>][<span class="hljs-link_reference">3-createdBy-&gt;4</span>]
+==&gt;e[<span class="hljs-link_label">16</span>][<span class="hljs-link_reference">5-createdBy-&gt;4</span>]
+gremlin&gt; g.V().as('a').out('created').addE('createdBy').to('a').property('acl','public') //3.为所有创建的边添加一个反向创建的边。
+==&gt;e[<span class="hljs-link_label">17</span>][<span class="hljs-link_reference">3-createdBy-&gt;1</span>]
+==&gt;e[<span class="hljs-link_label">18</span>][<span class="hljs-link_reference">5-createdBy-&gt;4</span>]
+==&gt;e[<span class="hljs-link_label">19</span>][<span class="hljs-link_reference">3-createdBy-&gt;4</span>]
+==&gt;e[<span class="hljs-link_label">20</span>][<span class="hljs-link_reference">3-createdBy-&gt;6</span>]
+gremlin&gt; g.V(1).as('a').out('knows').
+<span class="hljs-code">           addE('livesNear').from('a').property('year',2009).</span>
+<span class="hljs-code">           inV().inE('livesNear').values('year') //4.新创建的边是一个可遍历的对象。</span>
+==&gt;2009
+==&gt;2009
+gremlin&gt; g.V().match(
+<span class="hljs-code">                 __.as('a').out('knows').as('b'),</span>
+<span class="hljs-code">                 __.as('a').out('created').as('c'),</span>
+<span class="hljs-code">                 __.as('b').out('created').as('c')).</span>
+<span class="hljs-code">               addE('friendlyCollaborator').from('a').to('b').</span>
+<span class="hljs-code">                 property(id,23).property('project',select('c').values('name')) //5.可以加入遍历中的任意两个绑定from()→ , where `id可以为支持用户提供的id的图提供`to（）。</span>
+==&gt;e[<span class="hljs-link_label">23</span>][<span class="hljs-link_reference">1-friendlyCollaborator-&gt;4</span>]
+gremlin&gt; g.E(23).valueMap()
+==&gt;[project:lop]
+gremlin&gt; marko = g.V().has('name','marko').next()
+==&gt;v[1]
+gremlin&gt; peter = g.V().has('name','peter').next()
+==&gt;v[6]
+gremlin&gt; g.V(marko).addE('knows').to(peter) //6.给定定向（分离）的顶点参考，在marko和peter之间添加一条边。
+==&gt;e[<span class="hljs-link_label">24</span>][<span class="hljs-link_reference">1-knows-&gt;6</span>]
+gremlin&gt; g.addE('knows').from(marko).to(peter) //7.给定定向（分离）的顶点参考，在marko和peter之间添加一条边。
+==&gt;e[<span class="hljs-link_label">25</span>][<span class="hljs-link_reference">1-knows-&gt;6</span>]</code></pre>
+
+
+
+<h4 id="addvertex">AddVertex</h4>
+
+<ul>
+<li>所述addV()-step用于顶点添加到图表（map/ sideEffect）。</li>
+<li>对于每个传入的对象，都会创建一个顶点。此外，GraphTraversalSource维护一个addV()方法。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.addV('person').property('name','stephen')
+=<span class="ruby">=&gt;v[<span class="hljs-number">13</span>]
+</span>gremlin&gt; g.V().values('name')
+=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>=<span class="ruby">=&gt;stephen
+</span>gremlin&gt; g.V().outE('knows').addV().property('name','nothing')
+=<span class="ruby">=&gt;v[<span class="hljs-number">15</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">17</span>]
+</span>gremlin&gt; g.V().has('name','nothing')
+=<span class="ruby">=&gt;v[<span class="hljs-number">17</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">15</span>]
+</span>gremlin&gt; g.V().has('name','nothing').bothE()</code></pre>
+
+
+
+<h4 id="addproperty">AddProperty</h4>
+
+<ul>
+<li>The property():步骤用于将属性添加到的曲线图的元素sideEffect。</li>
+<li>不像addV()和 addE()，property()是一个完整的sideEffect一步，因为它不会返回它创造的财产，而是涌入它的元素。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V(<span class="hljs-number">1</span>).property(<span class="hljs-string">'country'</span>,<span class="hljs-string">'usa'</span>)
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).property(<span class="hljs-string">'city'</span>,<span class="hljs-string">'santa fe'</span>).property(<span class="hljs-string">'state'</span>,<span class="hljs-string">'new mexico'</span>).valueMap()
+==&gt;[country:[usa],city:[santa fe],name:[marko],state:[<span class="hljs-keyword">new</span> mexico],age:[<span class="hljs-number">29</span>]]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).property(<span class="hljs-keyword">list</span>,<span class="hljs-string">'age'</span>,<span class="hljs-number">35</span>) <span class="hljs-comment">//1.对于顶点，可以为顶点属性提供基数。</span>
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).valueMap()
+==&gt;[country:[usa],city:[santa fe],name:[marko],state:[<span class="hljs-keyword">new</span> mexico],age:[<span class="hljs-number">29</span>,<span class="hljs-number">35</span>]]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).property(<span class="hljs-string">'friendWeight'</span>,outE(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'weight'</span>).sum(),<span class="hljs-string">'acl'</span>,<span class="hljs-string">'private'</span>) <span class="hljs-comment">//2.可以通过遍历来选择属性值（以及键）。</span>
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).properties(<span class="hljs-string">'friendWeight'</span>).valueMap() <span class="hljs-comment">//3.对于顶点，property()-step可以添加元属性。</span>
+==&gt;[acl:<span class="hljs-keyword">private</span>]</code></pre>
+
+
+
+<h4 id="aggregate">Aggregate</h4>
+
+<ul>
+<li>aggregate()工序（sideEffect）用于在特定点遍历成聚集的所有对象 Collection。</li>
+<li>The step uses eager evaluation in that no objects continue on until all previous objects have been fully aggregated (as opposed to store() which lazily fills a collection). The eager evaluation nature is crucial in situations where everything at a particular point is required for future computation. An example is provided below.</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs cs">gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>) <span class="hljs-comment">//1。marko创建了什么？</span>
+==&gt;v[<span class="hljs-number">3</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).aggregate(<span class="hljs-string">'x'</span>) <span class="hljs-comment">//2。汇总他所有的创作。</span>
+==&gt;v[<span class="hljs-number">3</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).aggregate(<span class="hljs-string">'x'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>) <span class="hljs-comment">//3。谁是marko的合作者？</span>
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">4</span>]
+==&gt;v[<span class="hljs-number">6</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).aggregate(<span class="hljs-string">'x'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>) <span class="hljs-comment">//4。marko的合作者创造了什么？</span>
+==&gt;v[<span class="hljs-number">3</span>]
+==&gt;v[<span class="hljs-number">5</span>]
+==&gt;v[<span class="hljs-number">3</span>]
+==&gt;v[<span class="hljs-number">3</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).aggregate(<span class="hljs-string">'x'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).
+                <span class="hljs-keyword">where</span>(without(<span class="hljs-string">'x'</span>)).values(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//5。Marko的合作者创建了什么，他没有创建？</span>
+==&gt;ripple</code></pre>
+
+
+
+<h4 id="and">And</h4>
+
+<ul>
+<li>The and():确保所有提供遍历得到的结果（滤波）</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().<span class="hljs-keyword">and</span>(
+            outE(<span class="hljs-string">'knows'</span>),
+            <span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).is(<span class="hljs-keyword">lt</span>(<span class="hljs-number">30</span>))).
+              <span class="hljs-keyword">values</span>(<span class="hljs-string">'name'</span>)
+==&gt;marko</code></pre>
+
+<ul>
+<li>一个中间符号可以被使用。尽管用中缀符号表示，但只有两次遍历可以在一起。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().where(outE(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">and</span>().outE(<span class="hljs-string">'knows'</span>)).values(<span class="hljs-string">'name'</span>)
+==&gt;marko</code></pre>
+
+
+
+<h4 id="as">As</h4>
+
+<ul>
+<li>The as():不是一个真正的步骤，而是一个类似于by()和的“步调制器” option()。</li>
+<li>用as()，有可能提供一个标签到可稍后通过步骤和数据结构，使这些标记的使用被访问的步骤-例如select()，match()和路径。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>) <span class="hljs-comment">//1.从路径中选择标记为“a”和“b”的对象。</span>
+==&gt;[a:v[<span class="hljs-number">1</span>],b:v[<span class="hljs-number">3</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">5</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">3</span>]]
+==&gt;[a:v[<span class="hljs-number">6</span>],b:v[<span class="hljs-number">3</span>]]
+gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>).by(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//2.从路径中选择标记为“a”和“b”的对象，并为每个对象设置其名称值。</span>
+==&gt;[a:marko,b:lop]
+==&gt;[a:josh,b:ripple]
+==&gt;[a:josh,b:lop]
+==&gt;[a:peter,b:lop]</code></pre>
+
+<ul>
+<li>一个步骤可以有任何数量的标签与之相关联。这对于在未来的步骤中多次引用同一步骤很有用。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'software'</span>).as(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>,<span class="hljs-string">'c'</span>).
+            select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>,<span class="hljs-string">'c'</span>).
+              <span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>).
+              <span class="hljs-keyword">by</span>(<span class="hljs-string">'lang'</span>).
+              <span class="hljs-keyword">by</span>(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).values(<span class="hljs-string">'name'</span>).fold())
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">a</span>:lop,<span class="hljs-attribute">b</span>:java,<span class="hljs-attribute">c</span>:[marko,josh,peter]]
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">a</span>:ripple,<span class="hljs-attribute">b</span>:java,<span class="hljs-attribute">c</span>:[josh]]</code></pre>
+
+
+
+<h4 id="barrier">Barrier</h4>
+
+<ul>
+<li>The barrier():（屏障）变为懒惰遍历流水线成批量同步管道。</li>
+<li>此步骤很有用： <br>
+<ul><li>当所有的事情都需要被执行之后才能进入barrier()（即排序）之后的步骤。</li>
+<li>当“stalling”遍历可能导致遍历中的“bulking optimization”，这种遍历反复触及许多相同的元素（即优化）。</li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm">gremlin&gt; g<span class="hljs-preprocessor">.V</span>()<span class="hljs-preprocessor">.sideEffect</span>{println <span class="hljs-string">"first: ${it}"</span>}<span class="hljs-preprocessor">.sideEffect</span>{println <span class="hljs-string">"second: ${it}"</span>}<span class="hljs-preprocessor">.iterate</span>()
+<span class="hljs-label">first:</span> v[<span class="hljs-number">1</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">1</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">2</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">2</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">3</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">3</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">4</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">4</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">5</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">5</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">6</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">6</span>]
+gremlin&gt; g<span class="hljs-preprocessor">.V</span>()<span class="hljs-preprocessor">.sideEffect</span>{println <span class="hljs-string">"first: ${it}"</span>}<span class="hljs-preprocessor">.barrier</span>()<span class="hljs-preprocessor">.sideEffect</span>{println <span class="hljs-string">"second: ${it}"</span>}<span class="hljs-preprocessor">.iterate</span>()
+<span class="hljs-label">first:</span> v[<span class="hljs-number">1</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">2</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">3</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">4</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">5</span>]
+<span class="hljs-label">first:</span> v[<span class="hljs-number">6</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">1</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">2</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">3</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">4</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">5</span>]
+<span class="hljs-label">second:</span> v[<span class="hljs-number">6</span>]</code></pre>
+
+<ul>
+<li>“bulking optimization”背后的理论很简单。</li>
+<li>如果在顶点1处有一百万个遍历器，则不需要计算一百万个both()计算。相反，将这100万遍历作为一个Traverser.bulk()等于一百万的遍历器来表示，并执行both()一次。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; graph = TinkerGraph.open()
+=<span class="ruby">=&gt;tinkergraph[<span class="hljs-symbol">vertices:</span><span class="hljs-number">0</span> <span class="hljs-symbol">edges:</span><span class="hljs-number">0</span>]
+</span>gremlin&gt; graph.io(graphml()).readGraph('data/grateful-dead.xml')
+gremlin&gt; g = graph.traversal().withoutStrategies(LazyBarrierStrategy) //1.明确地删除LazyBarrierStrategy这会产生一个膨胀优化。
+=<span class="ruby">=&gt;graphtraversalsource[tinkergraph[<span class="hljs-symbol">vertices:</span><span class="hljs-number">808</span> <span class="hljs-symbol">edges:</span><span class="hljs-number">8049</span>], standard]
+</span>gremlin&gt; clockWithResult(1){g.V().both().both().both().count().next()} //2.处理每个移动程序的非扩充遍历。
+=<span class="ruby">=&gt;<span class="hljs-number">10555.215011999999</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">126653966</span>
+</span>gremlin&gt; clockWithResult(1){g.V().repeat(both()).times(3).count().next()} //3.每个进入者repeat()都有其递归权重。
+=<span class="ruby">=&gt;<span class="hljs-number">32.586223</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">126653966</span>
+</span>gremlin&gt; clockWithResult(1){g.V().both().barrier().both().barrier().both().barrier().count().next()} //4.没有处理隐式遍历的遍历遍历。
+=<span class="ruby">=&gt;<span class="hljs-number">24.458371</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">126653966</span></span></code></pre>
+
+<ul>
+<li>如果barrier()提供了一个整数参数，那么在将n聚合遍历器排空到下一步之前，屏障将只保留唯一遍历器的数量。</li>
+<li>LazyBarrierStrategy插入 - barrier()在适当的地方进行遍历，以获得“膨胀优化”。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; graph = TinkerGraph.open()
+=<span class="ruby">=&gt;tinkergraph[<span class="hljs-symbol">vertices:</span><span class="hljs-number">0</span> <span class="hljs-symbol">edges:</span><span class="hljs-number">0</span>]
+</span>gremlin&gt; graph.io(graphml()).readGraph('data/grateful-dead.xml')
+gremlin&gt; g = graph.traversal() //1.LazyBarrierStrategy 是一种默认策略，因此不需要明确激活。
+=<span class="ruby">=&gt;graphtraversalsource[tinkergraph[<span class="hljs-symbol">vertices:</span><span class="hljs-number">808</span> <span class="hljs-symbol">edges:</span><span class="hljs-number">8049</span>], standard]
+</span>gremlin&gt; clockWithResult(1){g.V().both().both().both().count().next()}
+=<span class="ruby">=&gt;<span class="hljs-number">15.593098999999999</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">126653966</span>
+</span>gremlin&gt; g.V().both().both().both().count().iterate().toString() //2.与LazyBarrierStrategy激活，barrier()步骤被自动插入在适当情况下。
+=<span class="ruby">=&gt;[<span class="hljs-constant">TinkerGraphStep</span>(vertex,[]), <span class="hljs-constant">VertexStep</span>(<span class="hljs-constant">BOTH</span>,vertex), <span class="hljs-constant">NoOpBarrierStep</span>(<span class="hljs-number">2500</span>), <span class="hljs-constant">VertexStep</span>(<span class="hljs-constant">BOTH</span>,vertex), <span class="hljs-constant">NoOpBarrierStep</span>(<span class="hljs-number">2500</span>), <span class="hljs-constant">VertexStep</span>(<span class="hljs-constant">BOTH</span>,edge), <span class="hljs-constant">CountGlobalStep</span>, <span class="hljs-constant">NoneStep</span>]</span></code></pre>
+
+
+
+<h4 id="by">By</h4>
+
+<ul>
+<li>The by():一步不是一个实际的步骤，而是一个类似于as()和 的“阶跃调节器” 。</li>
+<li>如果一个步骤能够接受遍历，函数，比较等，那么by()就是它们被添加的方式。一般模式是step().by()…​by()。有些步骤只能接受一个，by() 而其他步骤可以采取任意数量。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs axapta">gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(outE().<span class="hljs-keyword">count</span>()) <span class="hljs-comment">//1.by(outE().count())将按元素的边数（遍历）对元素进行分组。</span>
+==&gt;[<span class="hljs-number">1</span>:[v[<span class="hljs-number">2</span>],v[<span class="hljs-number">5</span>],v[<span class="hljs-number">6</span>]],<span class="hljs-number">3</span>:[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">3</span>],v[<span class="hljs-number">4</span>]]]
+gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(bothE().<span class="hljs-keyword">count</span>()).<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//2.by('name')将按名称处理分组元素（元素属性投影）。</span>
+==&gt;[<span class="hljs-number">1</span>:[vadas,ripple,peter],<span class="hljs-number">3</span>:[marko,lop,josh]]
+gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(bothE().<span class="hljs-keyword">count</span>()).<span class="hljs-keyword">by</span>(<span class="hljs-keyword">count</span>()) <span class="hljs-comment">//3.by(count())将计算每个组中元素的数量（遍历）。</span>
+==&gt;[<span class="hljs-number">1</span>:<span class="hljs-number">3</span>,<span class="hljs-number">3</span>:<span class="hljs-number">3</span>]</code></pre>
+
+<ul>
+<li><p>以下步骤都支持by()调制:</p>
+
+<ul><li><p>dedup()：对调制结果进行by()重复数据删除。</p></li>
+<li><p>cyclicPath()：如果遍历器的路径是循环给定by()调制，则进行过滤。</p></li>
+<li><p>simplePath()：如果遍历器的路径在给定by()调制的情况下是简单的，则进行过滤。</p></li>
+<li><p>sample()：使用由by()调制返回的值进行采样。</p></li>
+<li><p>where()：确定给定测试结果的谓词 - by()调制。</p></li>
+<li><p>groupCount()：计数那些组密钥是by()调制结果的组。</p></li>
+<li><p>group()：根据by()-modulation 创建组键和值。</p></li>
+<li><p>order()：通过by()调制的结果对对象进行排序。</p></li>
+<li><p>path()：获取每个路径元素被by()调制的遍历器的路径。</p></li>
+<li><p>project()：by()从当前对象中投影给定各种调制结果的地图。</p></li>
+<li><p>select()：选择路径元素并通过by()调制进行转换。</p></li>
+<li><p>tree()：获取对象已被by()调制的遍历器对象树。</p></li>
+<li><p>aggregate()：将所有对象聚合到一个集合中，但只存储它们的by()-modulated值。</p></li>
+<li><p>store()：将所有对象存储到一个集合中，但只存储它们的by()-modulated值。</p></li></ul></li>
+</ul>
+
+
+
+<h4 id="cap">Cap</h4>
+
+<ul>
+<li>The cap(): 迭代遍历到本身并发射通过所提供的密钥所引用的sideEffect。如果提供了多个键，则会Map</li></ul>
+
+<pre class="prettyprint"><code class=" hljs avrasm">gremlin&gt; g<span class="hljs-preprocessor">.V</span>()<span class="hljs-preprocessor">.groupCount</span>(<span class="hljs-string">'a'</span>)<span class="hljs-preprocessor">.by</span>(label)<span class="hljs-preprocessor">.cap</span>(<span class="hljs-string">'a'</span>) //<span class="hljs-number">1.</span>按标签对顶点进行分组和计数。发出标记为<span class="hljs-string">'a'</span>的副作用，这是按标签计算的组数。
+==&gt;[software:<span class="hljs-number">2</span>,person:<span class="hljs-number">4</span>]
+gremlin&gt; g<span class="hljs-preprocessor">.V</span>()<span class="hljs-preprocessor">.groupCount</span>(<span class="hljs-string">'a'</span>)<span class="hljs-preprocessor">.by</span>(label)<span class="hljs-preprocessor">.groupCount</span>(<span class="hljs-string">'b'</span>)<span class="hljs-preprocessor">.by</span>(outE()<span class="hljs-preprocessor">.count</span>())<span class="hljs-preprocessor">.cap</span>(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>) //<span class="hljs-number">2.</span>与语句<span class="hljs-number">1</span>相同，但也会发出标记为<span class="hljs-string">'b'</span>的副作用，该副作用按照出边的数量对顶点进行分组。
+==&gt;[a:[software:<span class="hljs-number">2</span>,person:<span class="hljs-number">4</span>],b:[<span class="hljs-number">0</span>:<span class="hljs-number">3</span>,<span class="hljs-number">1</span>:<span class="hljs-number">1</span>,<span class="hljs-number">2</span>:<span class="hljs-number">1</span>,<span class="hljs-number">3</span>:<span class="hljs-number">1</span>]]</code></pre>
+
+
+
+<h4 id="choose">Choose</h4>
+
+<ul>
+<li>The choose():（分支）的路线横移到一个特定的遍历分支选项。</li>
+<li>有了choose()它，就可以实现if / then / else-semantics以及更复杂的选择。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+               choose(values(<span class="hljs-string">'age'</span>).<span class="hljs-keyword">is</span>(lte(<span class="hljs-number">30</span>)),
+                 __.<span class="hljs-keyword">in</span>(),
+                 __.out()).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">1.</span>如果遍历产生一个元素，那么<span class="hljs-keyword">do</span> <span class="hljs-keyword">in</span>，<span class="hljs-keyword">else</span> <span class="hljs-keyword">do</span> out（即基于<span class="hljs-literal">true</span> / <span class="hljs-literal">false</span>的选项选择）。
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">marko</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">ripple</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">lop</span>
+==&gt;</span>lop
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+               choose(values(<span class="hljs-string">'age'</span>)).
+                 option(<span class="hljs-number">27</span>, __.<span class="hljs-keyword">in</span>()).
+                 option(<span class="hljs-number">32</span>, __.out()).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">2.</span>使用遍历的结果作为遍历选项的映射关键（即基于值的选项选择）。
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">marko</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">ripple</span>
+==&gt;</span>lop</code></pre>
+
+<ul>
+<li>请注意，choose()可以有任意数量的选项，而且可以采用匿名遍历作为其选择功能。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs rsl">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+               choose(values(<span class="hljs-string">'name'</span>)).
+                 <span class="hljs-built_in">option</span>(<span class="hljs-string">'marko'</span>, values(<span class="hljs-string">'age'</span>)).
+                 <span class="hljs-built_in">option</span>(<span class="hljs-string">'josh'</span>, values(<span class="hljs-string">'name'</span>)).
+                 <span class="hljs-built_in">option</span>(<span class="hljs-string">'vadas'</span>, valueMap()).
+                 <span class="hljs-built_in">option</span>(<span class="hljs-string">'peter'</span>, label())
+==&gt;<span class="hljs-number">29</span>
+==&gt;[name:[vadas],age:[<span class="hljs-number">27</span>]]
+==&gt;josh
+==&gt;person</code></pre>
+
+<ul>
+<li>choose() 可以利用Pick.none选项匹配。对于与指定选项不匹配的任何内容，将采用none-option。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+               choose(values(<span class="hljs-string">'name'</span>)).
+                 option(<span class="hljs-string">'marko'</span>, values(<span class="hljs-string">'age'</span>)).
+                 option(none, values(<span class="hljs-string">'name'</span>))
+==&gt;<span class="hljs-number">29</span>
+==&gt;vadas
+==&gt;josh
+==&gt;peter</code></pre>
+
+
+
+<h4 id="coalesce-合并">Coalesce 合并</h4>
+
+<ul>
+<li>This coalesce()： 评估，以便所提供的遍历，并返回该发射的至少一种元素的第一遍历。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V(<span class="hljs-number">1</span>).coalesce(outE(<span class="hljs-string">'knows'</span>), outE(<span class="hljs-string">'created'</span>)).inV().path().<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>).<span class="hljs-keyword">by</span>(label)
+=<span class="hljs-function">=&gt;</span>[marko,knows,vadas]
+=<span class="hljs-function">=&gt;</span>[marko,knows,josh]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).coalesce(outE(<span class="hljs-string">'created'</span>), outE(<span class="hljs-string">'knows'</span>)).inV().path().<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>).<span class="hljs-keyword">by</span>(label)
+=<span class="hljs-function">=&gt;</span>[marko,created,lop]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).property(<span class="hljs-string">'nickname'</span>, <span class="hljs-string">'okram'</span>)
+=<span class="hljs-function">=&gt;</span>v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).coalesce(values(<span class="hljs-string">'nickname'</span>), values(<span class="hljs-string">'name'</span>))
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">okram</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">vadas</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">josh</span>
+==&gt;</span>peter</code></pre>
+
+
+
+<h4 id="coin">Coin</h4>
+
+<ul>
+<li>This coin():要随机筛选出一个遍历器.</li>
+<li>提供的双重论点偏向于“掷硬币”。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().coin(0.5)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]
+</span>gremlin&gt; g.V().coin(0.0)
+gremlin&gt; g.V().coin(1.0)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]</span></code></pre>
+
+
+
+<h4 id="constant-常量">Constant 常量</h4>
+
+<ul>
+<li>This constant():要为移动器指定常量值</li>
+<li>通常适用于像choose()-step或coalesce()-step这样的条件步骤。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().choose(hasLabel('person'),
+             values('name'),
+             constant('inhuman')) //1.显示人物的名字，但显示其他顶点的“inhuman”。
+=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;inhuman
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;inhuman
+</span>=<span class="ruby">=&gt;peter
+</span>gremlin&gt; g.V().coalesce(
+             hasLabel('person').values('name'),
+             constant('inhuman')) //2.与陈述1相同（除非有没有名字的人顶点）。
+=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;inhuman
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;inhuman
+</span>=<span class="ruby">=&gt;peter</span></code></pre>
+
+
+
+<h4 id="count-计数">Count 计数</h4>
+
+<ul>
+<li>This count():对在该流表示traversers的总数（即，批量计数）。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs r">gremlin&gt; g.V().count()
+==&gt;<span class="hljs-number">6</span>
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).count()
+==&gt;<span class="hljs-number">4</span>
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).outE(<span class="hljs-string">'created'</span>).count().path() //<span class="hljs-number">1.</span>count()-step是一个减少的屏障步骤，意味着所有以前的遍历器都被折叠成一个新的遍历器。
+==&gt;[<span class="hljs-number">4</span>]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).outE(<span class="hljs-string">'created'</span>).count().map {it.get() * <span class="hljs-number">10</span>}.path() //<span class="hljs-number">2.</span>从<span class="hljs-keyword">...</span> count()开始的移动器的路径从count()。
+==&gt;[<span class="hljs-number">4</span>,<span class="hljs-number">40</span>]</code></pre>
+
+
+
+<h4 id="cyclicpath-循环路径">CyclicPath 循环路径</h4>
+
+<ul>
+<li>每个遍历器通过遍历图 - 即其路径来维护其历史。如果遍历器重复它的过程很重要，那么cyclic()应该使用-path（过滤器）</li>
+<li>该步骤至此分析遍历器的路径，并且如果有任何重复，遍历器将在遍历计算中被滤除。如果需要非循环行为，请参阅simplePath()。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V(<span class="hljs-number">1</span>).both().both()
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">4</span>]
+==&gt;v[<span class="hljs-number">6</span>]
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">5</span>]
+==&gt;v[<span class="hljs-number">3</span>]
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).both().both().cyclicPath()
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">1</span>]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).both().both().cyclicPath().path()
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">3</span>],v[<span class="hljs-number">1</span>]]
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">2</span>],v[<span class="hljs-number">1</span>]]
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">4</span>],v[<span class="hljs-number">1</span>]]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).
+           in(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>).
+           cyclicPath().
+           path()
+==&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">3</span>],v[<span class="hljs-number">1</span>]]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).
+           in(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>).
+           cyclicPath().from(<span class="hljs-string">'a'</span>).to(<span class="hljs-string">'b'</span>).
+           path()</code></pre>
+
+
+
+<h4 id="dedup-删除重复">Dedup 删除重复</h4>
+
+<ul>
+<li>This dedup():反复看到的对象将从遍历流中移除。</li>
+<li>请注意，如果移动器的体积大于1，则在发射之前将其设置为1。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs markdown">gremlin&gt; g.V().values('lang')
+==&gt;java
+==&gt;java
+gremlin&gt; g.V().values('lang').dedup()
+==&gt;java
+gremlin&gt; g.V(1).repeat(bothE('created').dedup().otherV()).emit().path() //1。遍历所有created边，但不要碰两边。
+==&gt;[<span class="hljs-link_label">v[1</span>],e[<span class="hljs-link_label">9</span>][<span class="hljs-link_reference">1-created-&gt;3</span>],v[3]]
+==&gt;[<span class="hljs-link_label">v[1</span>],e[<span class="hljs-link_label">9</span>][<span class="hljs-link_reference">1-created-&gt;3</span>],v[<span class="hljs-link_label">3</span>],e[<span class="hljs-link_label">11</span>][<span class="hljs-link_reference">4-created-&gt;3</span>],v[4]]
+==&gt;[<span class="hljs-link_label">v[1</span>],e[<span class="hljs-link_label">9</span>][<span class="hljs-link_reference">1-created-&gt;3</span>],v[<span class="hljs-link_label">3</span>],e[<span class="hljs-link_label">12</span>][<span class="hljs-link_reference">6-created-&gt;3</span>],v[6]]
+==&gt;[<span class="hljs-link_label">v[1</span>],e[<span class="hljs-link_label">9</span>][<span class="hljs-link_reference">1-created-&gt;3</span>],v[<span class="hljs-link_label">3</span>],e[<span class="hljs-link_label">11</span>][<span class="hljs-link_reference">4-created-&gt;3</span>],v[<span class="hljs-link_label">4</span>],e[<span class="hljs-link_label">10</span>][<span class="hljs-link_reference">4-created-&gt;5</span>],v[5]]</code></pre>
+
+<ul>
+<li>如果提供了逐步调制dedup()，则在确定是否已经看到对象之前对该对象进行相应处理。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs applescript">gremlin&gt; g.V().valueMap(<span class="hljs-constant">true</span>, '<span class="hljs-property">name</span>')
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">1</span>,<span class="hljs-property">name</span>:[marko],label:person]
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">2</span>,<span class="hljs-property">name</span>:[vadas],label:person]
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">3</span>,<span class="hljs-property">name</span>:[lop],label:software]
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">4</span>,<span class="hljs-property">name</span>:[josh],label:person]
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">5</span>,<span class="hljs-property">name</span>:[ripple],label:software]
+==&gt;[<span class="hljs-property">id</span>:<span class="hljs-number">6</span>,<span class="hljs-property">name</span>:[peter],label:person]
+gremlin&gt; g.V().dedup().<span class="hljs-keyword">by</span>(label).values('<span class="hljs-property">name</span>')
+==&gt;marko
+==&gt;lop</code></pre>
+
+<ul>
+<li>如果dedup()提供了一个字符串数组，那么它将确保重复数据删除不是针对当前的遍历器对象，而是针对遍历器的路径历史记录。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).in(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>).select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>,<span class="hljs-string">'c'</span>)
+==&gt;[a:v[<span class="hljs-number">1</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]
+==&gt;[a:v[<span class="hljs-number">1</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">4</span>]]
+==&gt;[a:v[<span class="hljs-number">1</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">6</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">5</span>],c:v[<span class="hljs-number">4</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">4</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">6</span>]]
+==&gt;[a:v[<span class="hljs-number">6</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]
+==&gt;[a:v[<span class="hljs-number">6</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">4</span>]]
+==&gt;[a:v[<span class="hljs-number">6</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">6</span>]]
+gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).in(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>).dedup(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>).select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>,<span class="hljs-string">'c'</span>) <span class="hljs-comment">//1。如果之前已经看到电流a和b组合，则过滤移动器。</span>
+==&gt;[a:v[<span class="hljs-number">1</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">5</span>],c:v[<span class="hljs-number">4</span>]]
+==&gt;[a:v[<span class="hljs-number">4</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]
+==&gt;[a:v[<span class="hljs-number">6</span>],b:v[<span class="hljs-number">3</span>],c:v[<span class="hljs-number">1</span>]]</code></pre>
+
+
+
+<h4 id="drop-下降">Drop 下降</h4>
+
+<ul>
+<li>This drop():用于除去从所述图形元素和属性（即删除）。</li>
+<li>这是一个过滤步骤，因为遍历不会产生传出对象。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().outE().drop()
+gremlin&gt; g.E()
+gremlin&gt; g.V().properties('name').drop()
+gremlin&gt; g.V().valueMap()
+=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[<span class="hljs-number">29</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[<span class="hljs-number">27</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">lang:</span>[java]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[<span class="hljs-number">32</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">lang:</span>[java]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[<span class="hljs-number">35</span>]]
+</span>gremlin&gt; g.V().drop()
+gremlin&gt; g.V()</code></pre>
+
+
+
+<h4 id="emit">Emit</h4>
+
+<ul>
+<li>This emit():不是实际的一步，但不是为一个步调制器repeat()（找到更多的文档emit()存在）。</li>
+</ul>
+
+
+
+<h4 id="explain-解释">Explain 解释</h4>
+
+<ul>
+<li>This explain():（终端）将返回一个TraversalExplanation。</li>
+<li>遍历解释详细说明了遍历（之前explain()）将如何在给定注册遍历策略的情况下编译。</li>
+<li>A TraversalExplanation具有toString()3列的表示。 <br>
+<ul><li>第一列是应用的遍历策略。</li>
+<li>第二列是遍历策略类别：[D]生态化，[O]优化，[P]漫游器优化，[F]实现和[V]验证。</li>
+<li>最后，第三列是遍历后策略应用程序的状态。最后的遍历是由此产生的执行计划。</li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).outE().identity().inV().count().is(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>)).explain()
+==&gt;Traversal Explanation
+=====================================================================================================================================================================================================
+Original Traversal                 [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+
+ConnectiveStrategy           [D]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+RepeatUnrollStrategy         [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+IncidentToAdjacentStrategy   [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+MatchPredicateStrategy       [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+PathRetractionStrategy       [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+CountStrategy                [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+FilterRankingStrategy        [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+InlineFilterStrategy         [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+AdjacentToIncidentStrategy   [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+LazyBarrierStrategy          [O]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+TinkerGraphCountStrategy     [P]   [GraphStep(vertex,[]), HasStep([~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+TinkerGraphStepStrategy      [P]   [TinkerGraphStep(vertex,[~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+ProfileStrategy              [F]   [TinkerGraphStep(vertex,[~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+StandardVerificationStrategy [V]   [TinkerGraphStep(vertex,[~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]
+
+Final Traversal                    [TinkerGraphStep(vertex,[~label.e<span class="hljs-string">q(person)</span>]), VertexStep(OUT,edge), IdentityStep, EdgeVertexStep(IN), RangeGlobalStep(<span class="hljs-number">0</span>,<span class="hljs-number">6</span>), CountGlobalStep, IsStep(<span class="hljs-keyword">gt</span>(<span class="hljs-number">5</span>))]</code></pre>
+
+
+
+<h4 id="fold-折叠">Fold 折叠</h4>
+
+<ul>
+<li>遍历流需要一个“屏障”来聚合所有对象并发出一个计算函数作为聚合函数</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V(<span class="hljs-number">1</span>).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>)
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">vadas</span>
+==&gt;</span>josh
+gremlin&gt; g.V(<span class="hljs-number">1</span>).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>).fold() <span class="hljs-regexp">//</span><span class="hljs-number">1</span>。无参数fold()会将所有对象聚合到列表中，然后发出列表。
+=<span class="hljs-function">=&gt;</span>[vadas,josh]
+gremlin&gt; g.V(<span class="hljs-number">1</span>).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>).fold().next().getClass() <span class="hljs-regexp">//</span><span class="hljs-number">2</span>。无参数fold()会将所有对象聚合到列表中，然后发出列表。
+=<span class="hljs-function">=&gt;</span><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">java</span>.<span class="hljs-title">util</span>.<span class="hljs-title">ArrayList</span></span>
+gremlin&gt; g.V(<span class="hljs-number">1</span>).out(<span class="hljs-string">'knows'</span>).values(<span class="hljs-string">'name'</span>).fold(<span class="hljs-number">0</span>) {a,b<span class="hljs-function"> -&gt;</span> a + b.length()} <span class="hljs-regexp">//</span><span class="hljs-number">3</span>。fold() 可以提供两个参数 - 一个种子值和一个减少双向函数（“vadas”是<span class="hljs-number">5</span>个字符+“josh”，<span class="hljs-number">4</span>个字符）。
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">9</span>
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).fold(<span class="hljs-number">0</span>) {a,b<span class="hljs-function"> -&gt;</span> a + b} <span class="hljs-regexp">//</span><span class="hljs-number">4</span>。图中人的总年龄是多少？
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">123</span>
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).fold(<span class="hljs-number">0</span>, sum) <span class="hljs-regexp">//</span><span class="hljs-number">5</span>。与以前一样，但使用内置的双功能。
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">123</span>
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).sum() <span class="hljs-regexp">//</span><span class="hljs-number">6</span>。与以前一样，但使用内置的双功能。
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">123</span></code></pre>
+
+
+
+<h4 id="from">From</h4>
+
+<ul>
+<li>This from():不是一个实际的步骤，而是一个类似于as()和 的“阶跃调节器” by()。</li>
+<li>如果一个步骤能够接受遍历或字符串，那么from()它们就是添加它们的手段。一般模式是step().from()。见 - to()步。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs markdown">gremlin&gt; g.V().has('name', within('marko', 'vadas', 'josh')).as('person').
+<span class="hljs-code">           V().has('name', within('lop', 'ripple')).addE('uses').from('person')</span>
+==&gt;e[<span class="hljs-link_label">13</span>][<span class="hljs-link_reference">1-uses-&gt;3</span>]
+==&gt;e[<span class="hljs-link_label">14</span>][<span class="hljs-link_reference">1-uses-&gt;5</span>]
+==&gt;e[<span class="hljs-link_label">15</span>][<span class="hljs-link_reference">2-uses-&gt;3</span>]
+==&gt;e[<span class="hljs-link_label">16</span>][<span class="hljs-link_reference">2-uses-&gt;5</span>]
+==&gt;e[<span class="hljs-link_label">17</span>][<span class="hljs-link_reference">4-uses-&gt;3</span>]
+==&gt;e[<span class="hljs-link_label">18</span>][<span class="hljs-link_reference">4-uses-&gt;5</span>]</code></pre>
+
+
+
+<h4 id="graph">Graph</h4>
+
+<ul>
+<li>This graph():通常用于启动GraphTraversal，但也可以使用中间穿越。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs lua">remlin&gt; g.V().has(<span class="hljs-string">'name'</span>, within(<span class="hljs-string">'marko'</span>, <span class="hljs-string">'vadas'</span>, <span class="hljs-string">'josh'</span>)).as(<span class="hljs-string">'person'</span>).
+           V().has(<span class="hljs-string">'name'</span>, within(<span class="hljs-string">'lop'</span>, <span class="hljs-string">'ripple'</span>)).addE(<span class="hljs-string">'uses'</span>).from(<span class="hljs-string">'person'</span>).toString() //<span class="hljs-number">1</span>。通常这个步骤V()将遍历所有的顶点。但是，图策略可以折叠HasContainer’s into a `GraphStep以允许索引查找。
+==&gt;[GraphStep(vertex,[]), HasStep([name.within([marko, vadas, josh])])@[person], GraphStep(vertex,[]), HasStep([name.within([lop, ripple])]), AddEdgeStep({~from=<span class="hljs-string">[[SelectOneStep(last,person)]]</span>, label=[uses]})]
+gremlin&gt; g.V().has(<span class="hljs-string">'name'</span>, within(<span class="hljs-string">'marko'</span>, <span class="hljs-string">'vadas'</span>, <span class="hljs-string">'josh'</span>)).as(<span class="hljs-string">'person'</span>).
+           V().has(<span class="hljs-string">'name'</span>, within(<span class="hljs-string">'lop'</span>, <span class="hljs-string">'ripple'</span>)).addE(<span class="hljs-string">'uses'</span>).from(<span class="hljs-string">'person'</span>).iterate().toString() //<span class="hljs-number">2</span>。图形系统提供者是否支持中间遍历V()索引查找可以通过检查toString()迭代遍历的输出来轻松确定。如果has条件被折叠成步骤，则将V()使用索引（如果存在的话）。
+==&gt;[TinkerGraphStep(vertex,[name.within([marko, vadas, josh])])@[person], TinkerGraphStep(vertex,[name.within([lop, ripple])]), AddEdgeStep({~from=<span class="hljs-string">[[SelectOneStep(last,person)]]</span>, label=[uses]}), NoneStep]</code></pre>
+
+
+
+<h4 id="group-组">Group 组</h4>
+
+<ul>
+<li>当遍历器遍历一个由遍历定义的图时，有时需要sideEffect计算。</li>
+<li>也就是说，所采用的实际路径或者移动器的当前位置不是计算的最终输出，而是遍历的一些其他表示。</li>
+<li>所述group()工序（地图 / sideEffect）就是这样一种sideEffect，根据对象的某些功能组织的对象。然后，如果需要，该组织（列表）将减少。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs axapta">gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(label) <span class="hljs-comment">//1.按照它们的标签对顶点进行分组。</span>
+==&gt;[software:[v[<span class="hljs-number">3</span>],v[<span class="hljs-number">5</span>]],person:[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">2</span>],v[<span class="hljs-number">4</span>],v[<span class="hljs-number">6</span>]]]
+gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(label).<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//2.对于组中的每个顶点，获取它们的名称。</span>
+==&gt;[software:[lop,ripple],person:[marko,vadas,josh,peter]]
+gremlin&gt; g.V().<span class="hljs-keyword">group</span>().<span class="hljs-keyword">by</span>(label).<span class="hljs-keyword">by</span>(<span class="hljs-keyword">count</span>()) <span class="hljs-comment">//3.对于每个分组，它的大小是多少？</span>
+==&gt;[software:<span class="hljs-number">2</span>,person:<span class="hljs-number">4</span>]</code></pre>
+
+<ul>
+<li><p>可以group()通过的两个投影参数by()是：</p>
+
+<ul><li><p>Key-projection：组合对象的哪个特征（产生map键的函数）</p></li>
+<li><p>价值投影：该组的哪些功能要存储在密钥列表中</p></li></ul></li>
+</ul>
+
+
+
+<h4 id="groupcount-分组统计">GroupCount 分组统计</h4>
+
+<ul>
+<li>This groupCount():特定对象在遍历的特定部分有多少次</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).values(<span class="hljs-string">'age'</span>).groupCount()
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-number">32</span>:<span class="hljs-number">1</span>,<span class="hljs-number">35</span>:<span class="hljs-number">1</span>,<span class="hljs-number">27</span>:<span class="hljs-number">1</span>,<span class="hljs-number">29</span>:<span class="hljs-number">1</span>]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).groupCount().<span class="hljs-keyword">by</span>(<span class="hljs-string">'age'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">1.</span>您还可以提供预组投影，其中提供的<span class="hljs-keyword">by</span>()调制决定了将传入对象分组的内容。
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-number">32</span>:<span class="hljs-number">1</span>,<span class="hljs-number">35</span>:<span class="hljs-number">1</span>,<span class="hljs-number">27</span>:<span class="hljs-number">1</span>,<span class="hljs-number">29</span>:<span class="hljs-number">1</span>]</code></pre>
+
+
+
+<h4 id="has-有">Has 有</h4>
+
+<ul>
+<li><p>This has():根据其属性过滤顶点，边和顶点属性。有很多变化，has()包括：</p>
+
+<ul><li><p>has(key,value)：如果元素没有提供的键/值属性，则移除该移动器。</p></li>
+<li><p>has(label, key, value)：如果元素没有指定的标签并提供键/值属性，则移除该移动器。</p></li>
+<li><p>has(key,predicate)：如果元素没有满足双谓词的键值，则移除该移动器。有关谓词的更多信息，请阅读关于谓词的注释。</p></li>
+<li><p>hasLabel(labels…​)：如果元素没有任何标签，则移除移动器。</p></li>
+<li><p>hasId(ids…​)：如果元素没有任何id，则移除移动器。</p></li>
+<li><p>hasKey(keys…​)：如果属性没有提供所有提供的键，则移除移动器。</p></li>
+<li><p>hasValue(values…​)：如果移动器的属性没有提供所有提供的值，则移除移动器。</p></li>
+<li><p>has(key)：如果移动元素的元素没有键值，则移除移动元素。</p></li>
+<li><p>hasNot(key)：如果元素的值为该键，则移除该移动器。</p></li>
+<li><p>has(key, traversal)：如果移动器的对象没有通过遍历属性值产生结果，则移除移动器。</p></li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>)
+==&gt;v[<span class="hljs-number">1</span>]
+==&gt;v[<span class="hljs-number">2</span>]
+==&gt;v[<span class="hljs-number">4</span>]
+==&gt;v[<span class="hljs-number">6</span>]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).out().has(<span class="hljs-string">'name'</span>,within(<span class="hljs-string">'vadas'</span>,<span class="hljs-string">'josh'</span>))
+==&gt;v[<span class="hljs-number">2</span>]
+==&gt;v[<span class="hljs-number">4</span>]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).out().has(<span class="hljs-string">'name'</span>,within(<span class="hljs-string">'vadas'</span>,<span class="hljs-string">'josh'</span>)).
+               outE().hasLabel(<span class="hljs-string">'created'</span>)
+==&gt;e[<span class="hljs-number">10</span>][<span class="hljs-number">4</span>-created-&gt;<span class="hljs-number">5</span>]
+==&gt;e[<span class="hljs-number">11</span>][<span class="hljs-number">4</span>-created-&gt;<span class="hljs-number">3</span>]
+gremlin&gt; g.V().has(<span class="hljs-string">'age'</span>,inside(<span class="hljs-number">20</span>,<span class="hljs-number">30</span>)).values(<span class="hljs-string">'age'</span>) <span class="hljs-comment">//1.查找年龄在20（含）和30（不含）之间的所有顶点。</span>
+==&gt;<span class="hljs-number">29</span>
+==&gt;<span class="hljs-number">27</span>
+gremlin&gt; g.V().has(<span class="hljs-string">'age'</span>,outside(<span class="hljs-number">20</span>,<span class="hljs-number">30</span>)).values(<span class="hljs-string">'age'</span>) <span class="hljs-comment">//2.查找年龄不在20（含）和30（不含）之间的所有顶点。</span>
+==&gt;<span class="hljs-number">32</span>
+==&gt;<span class="hljs-number">35</span>
+gremlin&gt; g.V().has(<span class="hljs-string">'name'</span>,within(<span class="hljs-string">'josh'</span>,<span class="hljs-string">'marko'</span>)).valueMap() <span class="hljs-comment">//3.查找名称完全匹配集合中任何名称的所有顶点[josh,marko]，显示这些顶点的所有键和值对。</span>
+==&gt;[name:[marko],age:[<span class="hljs-number">29</span>]]
+==&gt;[name:[josh],age:[<span class="hljs-number">32</span>]]
+gremlin&gt; g.V().has(<span class="hljs-string">'name'</span>,without(<span class="hljs-string">'josh'</span>,<span class="hljs-string">'marko'</span>)).valueMap() <span class="hljs-comment">//4.查找名称不在集合中的所有顶点[josh,marko]，显示这些顶点的所有键，值对。对。</span>
+==&gt;[name:[vadas],age:[<span class="hljs-number">27</span>]]
+==&gt;[name:[lop],lang:[java]]
+==&gt;[name:[ripple],lang:[java]]
+==&gt;[name:[peter],age:[<span class="hljs-number">35</span>]]
+gremlin&gt; g.V().has(<span class="hljs-string">'name'</span>,not(within(<span class="hljs-string">'josh'</span>,<span class="hljs-string">'marko'</span>))).valueMap() <span class="hljs-comment">//5.和前面的例子一样，使用noton within来保存without。</span>
+==&gt;[name:[vadas],age:[<span class="hljs-number">27</span>]]
+==&gt;[name:[lop],lang:[java]]
+==&gt;[name:[ripple],lang:[java]]
+==&gt;[name:[peter],age:[<span class="hljs-number">35</span>]]
+gremlin&gt; g.V().properties().hasKey(<span class="hljs-string">'age'</span>).value() <span class="hljs-comment">//6.查找所有年龄属性并发布其价值。</span>
+==&gt;<span class="hljs-number">29</span>
+==&gt;<span class="hljs-number">27</span>
+==&gt;<span class="hljs-number">32</span>
+==&gt;<span class="hljs-number">35</span>
+gremlin&gt; g.V().hasNot(<span class="hljs-string">'age'</span>).values(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//7.查找所有没有年龄属性并发出其名称的顶点。</span>
+==&gt;lop
+==&gt;ripple</code></pre>
+
+
+
+<h4 id="id">Id</h4>
+
+<ul>
+<li>接受一个Element，并从中提取其标识符。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().id()
+=<span class="ruby">=&gt;<span class="hljs-number">1</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">2</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">4</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">5</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">6</span>
+</span>gremlin&gt; g.V(1).out().id().is(2)
+=<span class="ruby">=&gt;<span class="hljs-number">2</span>
+</span>gremlin&gt; g.V(1).outE().id()
+=<span class="ruby">=&gt;<span class="hljs-number">9</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">7</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">8</span>
+</span>gremlin&gt; g.V(1).properties().id()
+=<span class="ruby">=&gt;<span class="hljs-number">0</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">1</span></span></code></pre>
+
+
+
+<h4 id="identity-恒定">Identity 恒定</h4>
+
+<ul>
+<li>This identity（）：是恒等函数，其中当前对象映射到其自身。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().identity()
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]</span></code></pre>
+
+
+
+<h4 id="inject-注入">Inject 注入</h4>
+
+<ul>
+<li>This inject（）：将对象任意插入到遍历流中</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V(4).out().values('name').inject('daniel')
+=<span class="ruby">=&gt;daniel
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;lop
+</span>gremlin&gt; g.V(4).out().values('name').inject('daniel').map {it.get().length()}
+=<span class="ruby">=&gt;<span class="hljs-number">6</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">6</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3</span>
+</span>gremlin&gt; g.V(4).out().values('name').inject('daniel').map {it.get().length()}.path()
+=<span class="ruby">=&gt;[daniel,<span class="hljs-number">6</span>]
+</span>=<span class="ruby">=&gt;[v[<span class="hljs-number">4</span>],v[<span class="hljs-number">5</span>],ripple,<span class="hljs-number">6</span>]
+</span>=<span class="ruby">=&gt;[v[<span class="hljs-number">4</span>],v[<span class="hljs-number">3</span>],lop,<span class="hljs-number">3</span>]</span></code></pre>
+
+
+
+<h4 id="is-是">Is 是</h4>
+
+<ul>
+<li>This is():过滤标量值</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).<span class="hljs-keyword">is</span>(<span class="hljs-number">32</span>)
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">32</span>
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).<span class="hljs-keyword">is</span>(lte(<span class="hljs-number">30</span>))
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">29</span>
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">27</span>
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).<span class="hljs-keyword">is</span>(inside(<span class="hljs-number">30</span>, <span class="hljs-number">40</span>))
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">32</span>
+=<span class="hljs-function">=&gt;</span><span class="hljs-number">35</span>
+gremlin&gt; g.V().where(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).count().<span class="hljs-keyword">is</span>(<span class="hljs-number">1</span>)).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">1.</span>查找只有一个贡献者的项目。
+=<span class="hljs-function">=&gt;</span>ripple
+gremlin&gt; g.V().where(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).count().<span class="hljs-keyword">is</span>(gte(<span class="hljs-number">2</span>))).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">2.</span>查找有两个或更多贡献者的项目。
+=<span class="hljs-function">=&gt;</span>lop
+gremlin&gt; g.V().where(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).values(<span class="hljs-string">'age'</span>).
+                                    mean().<span class="hljs-keyword">is</span>(inside(<span class="hljs-number">30</span>d, <span class="hljs-number">35</span>d))).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">3.</span>查找贡献者平均年龄在<span class="hljs-number">30</span>岁到<span class="hljs-number">35</span>岁之间的项目。
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">lop</span>
+==&gt;</span>ripple</code></pre>
+
+
+
+<h4 id="key-键">Key 键</h4>
+
+<ul>
+<li>This key():需要Property，并从中提取的关键。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V(1).properties().key()
+=<span class="ruby">=&gt;name
+</span>=<span class="ruby">=&gt;location
+</span>=<span class="ruby">=&gt;location
+</span>=<span class="ruby">=&gt;location
+</span>=<span class="ruby">=&gt;location
+</span>gremlin&gt; g.V(1).properties().properties().key()
+=<span class="ruby">=&gt;startTime
+</span>=<span class="ruby">=&gt;endTime
+</span>=<span class="ruby">=&gt;startTime
+</span>=<span class="ruby">=&gt;endTime
+</span>=<span class="ruby">=&gt;startTime
+</span>=<span class="ruby">=&gt;endTime
+</span>=<span class="ruby">=&gt;startTime</span></code></pre>
+
+
+
+<h4 id="label-标签">Label 标签</h4>
+
+<ul>
+<li>需要一个Element并从中提取其标签。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().label()
+=<span class="ruby">=&gt;person
+</span>=<span class="ruby">=&gt;person
+</span>=<span class="ruby">=&gt;software
+</span>=<span class="ruby">=&gt;person
+</span>=<span class="ruby">=&gt;software
+</span>=<span class="ruby">=&gt;person
+</span>gremlin&gt; g.V(1).outE().label()
+=<span class="ruby">=&gt;created
+</span>=<span class="ruby">=&gt;knows
+</span>=<span class="ruby">=&gt;knows
+</span>gremlin&gt; g.V(1).properties().label()
+=<span class="ruby">=&gt;name
+</span>=<span class="ruby">=&gt;age</span></code></pre>
+
+
+
+<h4 id="limit-限制">Limit 限制</h4>
+
+<ul>
+<li>类似于range()-步骤保存的下端范围被设定为0。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().limit(2)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>gremlin&gt; g.V().range(0, 2)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]</span></code></pre>
+
+<ul>
+<li>这个步骤limit()也可以应用Scope.local，在这种情况下，它在收到的收集上运行。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().valueMap().select('location').limit(local,2) //1.List&lt;String&gt; 对于包含前两个位置的每个顶点。
+=<span class="ruby">=&gt;[san diego,santa cruz]
+</span>=<span class="ruby">=&gt;[centreville,dulles]
+</span>=<span class="ruby">=&gt;[bremen,baltimore]
+</span>=<span class="ruby">=&gt;[spremberg,kaiserslautern]
+</span>gremlin&gt; g.V().valueMap().limit(local, 1) //2.Map&lt;String, Object&gt; 为每个顶点，但只包含第一个属性值。
+=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[marko]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[stephen]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[matthias]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[daniel]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[gremlin]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[tinkergraph]]</span></code></pre>
+
+
+
+<h4 id="local-本地">Local 本地</h4>
+
+<ul>
+<li>A GraphTraversal在连续的对象流上运行。</li>
+<li>在很多情况下，在该流内的单个元素上操作非常重要。为了做这种对象局部遍历计算</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'person'</span>).
+               properties(<span class="hljs-string">'location'</span>).order().by(<span class="hljs-string">'startTime'</span>,incr).limit(<span class="hljs-number">2</span>).value().<span class="hljs-keyword">as</span>(<span class="hljs-string">'location'</span>).
+               select(<span class="hljs-string">'person'</span>,<span class="hljs-string">'location'</span>).by(<span class="hljs-string">'name'</span>).by() <span class="hljs-comment">//1.根据历史最悠久的地点开始时间获取前两个人和他们各自的位置。</span>
+==&gt;[person:daniel,location:spremberg]
+==&gt;[person:stephen,location:centreville]
+gremlin&gt; g.V().<span class="hljs-keyword">as</span>(<span class="hljs-string">'person'</span>).
+               local(properties(<span class="hljs-string">'location'</span>).order().by(<span class="hljs-string">'startTime'</span>,incr).limit(<span class="hljs-number">2</span>)).value().<span class="hljs-keyword">as</span>(<span class="hljs-string">'location'</span>).
+               select(<span class="hljs-string">'person'</span>,<span class="hljs-string">'location'</span>).by(<span class="hljs-string">'name'</span>).by() <span class="hljs-comment">//2.对于每个人来说，他们的两个最具历史意义的地点</span>
+==&gt;[person:marko,location:san diego]
+==&gt;[person:marko,location:santa cruz]
+==&gt;[person:stephen,location:centreville]
+==&gt;[person:stephen,location:dulles]
+==&gt;[person:matthias,location:bremen]
+==&gt;[person:matthias,location:baltimore]
+==&gt;[person:daniel,location:spremberg]
+==&gt;[person:daniel,location:kaiserslautern]</code></pre>
+
+
+
+<h4 id="loops-循环">Loops 循环</h4>
+
+<ul>
+<li>This loops():提取的次数的数目Traverser已经通过电流环路消失。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm">remlin&gt; g<span class="hljs-preprocessor">.V</span>()<span class="hljs-preprocessor">.emit</span>(__<span class="hljs-preprocessor">.has</span>(<span class="hljs-string">"name"</span>, <span class="hljs-string">"marko"</span>)<span class="hljs-preprocessor">.or</span>()<span class="hljs-preprocessor">.loops</span>()<span class="hljs-preprocessor">.is</span>(<span class="hljs-number">2</span>))<span class="hljs-preprocessor">.repeat</span>(__<span class="hljs-preprocessor">.out</span>())<span class="hljs-preprocessor">.values</span>(<span class="hljs-string">"name"</span>)
+==&gt;marko
+==&gt;ripple
+==&gt;lop</code></pre>
+
+
+
+<h4 id="match-匹配">Match  匹配</h4>
+
+<ul>
+<li>提供了一个更加声明 基于的概念图表查询的形式图案匹配。</li>
+<li>用户提供了一组“遍历碎片”，称为模式，它们定义了必须在整个持续时间内保持为真的变量match()。</li>
+<li>当一个遍历器进入时match()，一个注册 MatchAlgorithm分析遍历器的当前状态（也就是基于其路径数据的历史 ），遍历模式的运行时统计信息，并返回遍历器应该接下来尝试的遍历模式。</li>
+<li>MatchAlgorithm提供的默认值被调用CountMatchAlgorithm并且它通过根据模式的过滤能力对模式进行排序来动态修改模式执行计划（即，最大集合缩减模式首先执行）。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs oxygene">gremlin&gt; g.V().match(
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>),
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).<span class="hljs-keyword">has</span>(<span class="hljs-string">'name'</span>, <span class="hljs-string">'lop'</span>),
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>),
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>).<span class="hljs-keyword">has</span>(<span class="hljs-string">'age'</span>, <span class="hljs-number">29</span>)).
+               <span class="hljs-keyword">select</span>(<span class="hljs-string">'a'</span>,<span class="hljs-string">'c'</span>).<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>)
+==&gt;[a:marko,c:marko]
+==&gt;[a:josh,c:marko]
+==&gt;[a:peter,c:marko]</code></pre>
+
+<ul>
+<li>为了提高可读性，as()可以为步骤提供有意义的标签，以更好地反映您的域名。因此，以前的查询可以用更具表现力的方式编写，如下所示。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs oxygene">gremlin&gt; g.V().match(
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'creators'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">has</span>(<span class="hljs-string">'name'</span>, <span class="hljs-string">'lop'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'projects'</span>), <span class="hljs-comment">//1.找到创建东西的顶点并将它们匹配为“创建者”，然后找出他们创建的名为“lop”并将这些顶点匹配为“项目”的顶点。</span>
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'projects'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">has</span>(<span class="hljs-string">'age'</span>, <span class="hljs-number">29</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'cocreators'</span>)). <span class="hljs-comment">//2.使用这些'项目'顶点，找出他们的创作者29岁，并记住这些'共同创作者'。</span>
+               <span class="hljs-keyword">select</span>(<span class="hljs-string">'creators'</span>,<span class="hljs-string">'cocreators'</span>).<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>) <span class="hljs-comment">//3.返回'创作者'和'共同创作者'的名字。</span>
+==&gt;[creators:marko,cocreators:marko]
+==&gt;[creators:josh,cocreators:marko]
+==&gt;[creators:peter,cocreators:marko]</code></pre>
+
+
+
+<h6 id="使用匹配的地方">使用匹配的地方</h6>
+
+<ul>
+<li>匹配通常与两者select()（先前演示）和where()（在此展示）一起使用。</li>
+<li>A- where()step允许用户进一步限制由提供的结果集match()。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().match(
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).out(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>),
+                 __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).in(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>)).
+                 where(<span class="hljs-string">'a'</span>, neq(<span class="hljs-string">'c'</span>)).
+               select(<span class="hljs-string">'a'</span>,<span class="hljs-string">'c'</span>).by(<span class="hljs-string">'name'</span>)
+==&gt;[a:marko,c:josh]
+==&gt;[a:marko,c:peter]
+==&gt;[a:josh,c:marko]
+==&gt;[a:josh,c:peter]
+==&gt;[a:peter,c:marko]
+==&gt;[a:peter,c:josh]</code></pre>
+
+<ul>
+<li>where()-步骤可以采取任一个P-predicate（例如上文）或一个Traversal（下面例子）。使用时 MatchPredicateStrategy，where()-clauses自动折叠match()，因此受制于查询优化器match()。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs oxygene">gremlin&gt; traversal = g.V().match(
+                             __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).<span class="hljs-keyword">has</span>(label,<span class="hljs-string">'person'</span>), <span class="hljs-comment">//1\</span>
+                             __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>),
+                             __.<span class="hljs-keyword">as</span>(<span class="hljs-string">'b'</span>).<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>)).
+                             <span class="hljs-keyword">where</span>(__.<span class="hljs-keyword">as</span>(<span class="hljs-string">'a'</span>).<span class="hljs-keyword">out</span>(<span class="hljs-string">'knows'</span>).<span class="hljs-keyword">as</span>(<span class="hljs-string">'c'</span>)). <span class="hljs-comment">//2\</span>
+                           <span class="hljs-keyword">select</span>(<span class="hljs-string">'a'</span>,<span class="hljs-string">'c'</span>).<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>); null <span class="hljs-comment">//3\</span>
+gremlin&gt; traversal.toString() <span class="hljs-comment">//4\</span>
+==&gt;[GraphStep(vertex,[]), MatchStep(<span class="hljs-keyword">AND</span>,[[MatchStartStep(a), HasStep([~label.eq(person)]), MatchEndStep], [MatchStartStep(a), VertexStep(<span class="hljs-keyword">OUT</span>,[created],vertex), MatchEndStep(b)], [MatchStartStep(b), VertexStep(<span class="hljs-keyword">IN</span>,[created],vertex), MatchEndStep(c)]]), WhereTraversalStep([WhereStartStep(a), VertexStep(<span class="hljs-keyword">OUT</span>,[knows],vertex), WhereEndStep(c)]), SelectStep(last,[a, c],[value(name)])]
+gremlin&gt; traversal <span class="hljs-comment">// (5) </span>
+==&gt;[a:marko,c:josh]
+gremlin&gt; traversal.toString() <span class="hljs-comment">//7\</span>
+==&gt;[TinkerGraphStep(vertex,[~label.eq(person)])@[a], MatchStep(<span class="hljs-keyword">AND</span>,[[MatchStartStep(a), VertexStep(<span class="hljs-keyword">OUT</span>,[created],vertex), MatchEndStep(b)], [MatchStartStep(b), VertexStep(<span class="hljs-keyword">IN</span>,[created],vertex), MatchEndStep(c)], [MatchStartStep(a), WhereTraversalStep([WhereStartStep, VertexStep(<span class="hljs-keyword">OUT</span>,[knows],vertex), WhereEndStep(c)]), MatchEndStep]]), SelectStep(last,[a, c],[value(name)])]</code></pre>
+
+
+
+<h4 id="math">Math</h4>
+
+<ul>
+<li>科学计算器功能</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().as('a').out('knows').as('b').math('a + b').by('age')
+=<span class="ruby">=&gt;<span class="hljs-number">56.0</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">61.0</span>
+</span>gremlin&gt; g.V().as('a').out('created').as('b').
+           math('b + a').
+             by(both().count().math('_ + 100')).
+             by('age')
+=<span class="ruby">=&gt;<span class="hljs-number">132.0</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">133.0</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">135.0</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">138.0</span>
+</span>gremlin&gt; g.withSideEffect('x',10).V().values('age').math('_ / x')
+=<span class="ruby">=&gt;<span class="hljs-number">2.9</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">2.7</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3.2</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">3.5</span>
+</span>gremlin&gt; g.withSack(1).V(1).repeat(sack(sum).by(constant(1))).times(10).emit().sack().math('sin _')
+=<span class="ruby">=&gt;<span class="hljs-number">0</span>.<span class="hljs-number">9092974268256817</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">0</span>.<span class="hljs-number">1411200080598672</span>
+</span>=<span class="ruby">=&gt;-<span class="hljs-number">0</span>.<span class="hljs-number">7568024953079282</span>
+</span>=<span class="ruby">=&gt;-<span class="hljs-number">0</span>.<span class="hljs-number">9589242746631385</span>
+</span>=<span class="ruby">=&gt;-<span class="hljs-number">0</span>.<span class="hljs-number">27941549819892586</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">0</span>.<span class="hljs-number">6569865987187891</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">0</span>.<span class="hljs-number">9893582466233818</span>
+</span>=<span class="ruby">=&gt;<span class="hljs-number">0</span>.<span class="hljs-number">4121184852417566</span>
+</span>=<span class="ruby">=&gt;-<span class="hljs-number">0</span>.<span class="hljs-number">5440211108893698</span>
+</span>=<span class="ruby">=&gt;-<span class="hljs-number">0</span>.<span class="hljs-number">9999902065507035</span></span></code></pre>
+
+<ul>
+<li><p>通过计算器支持的运营商包括：*，+，\，^，和%。此外，还提供了以下内置功能：</p>
+
+<ul><li><p>abs： 绝对值</p></li>
+<li><p>acos：反余弦</p></li>
+<li><p>asin：反正弦</p></li>
+<li><p>atan：反正切</p></li>
+<li><p>cbrt：立方根</p></li>
+<li><p>ceil：最接近的大整数</p></li>
+<li><p>cos：余弦</p></li>
+<li><p>cosh：双曲余弦</p></li>
+<li><p>exp：欧拉的号码提升到了力量（e^x）</p></li>
+<li><p>floor：最接近的较小整数</p></li>
+<li><p>log：logarithmus naturalis（基数e）</p></li>
+<li><p>log10：对数（基数10）</p></li>
+<li><p>log2：对数（基数2）</p></li>
+<li><p>sin：正弦</p></li>
+<li><p>sinh：双曲正弦</p></li>
+<li><p>sqrt： 平方根</p></li>
+<li><p>tan：切线</p></li>
+<li><p>tanh：双曲正切</p></li>
+<li><p>signum：signum函数</p></li></ul></li>
+</ul>
+
+
+
+<h4 id="max">Max</h4>
+
+<ul>
+<li>最大值</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).max()
+==&gt;<span class="hljs-number">35</span>
+gremlin&gt; g.V().repeat(both()).<span class="hljs-keyword">times</span>(<span class="hljs-number">3</span>).<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).max()
+==&gt;<span class="hljs-number">35</span></code></pre>
+
+
+
+<h4 id="mean-平均值">Mean 平均值</h4>
+
+<ul>
+<li>操作数的流，并确定这些数字的平均值。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).mean()
+==&gt;<span class="hljs-number">30.75</span>
+gremlin&gt; g.V().repeat(both()).<span class="hljs-keyword">times</span>(<span class="hljs-number">3</span>).<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).mean() //<span class="hljs-number">1</span>\
+==&gt;<span class="hljs-number">30.645833333333332</span>
+gremlin&gt; g.V().repeat(both()).<span class="hljs-keyword">times</span>(<span class="hljs-number">3</span>).<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).dedup().mean()
+==&gt;<span class="hljs-number">30.75</span></code></pre>
+
+
+
+<h4 id="min-最小值">Min 最小值</h4>
+
+<ul>
+<li>操作数的流，并确定它是在流中的最小数目。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).min()
+==&gt;<span class="hljs-number">27</span>
+gremlin&gt; g.V().repeat(both()).<span class="hljs-keyword">times</span>(<span class="hljs-number">3</span>).<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).min()
+==&gt;<span class="hljs-number">27</span></code></pre>
+
+
+
+<h4 id="not">Not</h4>
+
+<ul>
+<li>（过滤器时遍历提供作为参数不返回任何对象）去除遍历流对象。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().<span class="hljs-keyword">not</span>(hasLabel(<span class="hljs-string">'person'</span>)).valueMap(<span class="hljs-literal">true</span>)
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">id</span>:<span class="hljs-number">3</span>,<span class="hljs-attribute">name</span>:[lop],<span class="hljs-attribute">label</span>:software,<span class="hljs-attribute">lang</span>:[java]]
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">id</span>:<span class="hljs-number">5</span>,<span class="hljs-attribute">name</span>:[ripple],<span class="hljs-attribute">label</span>:software,<span class="hljs-attribute">lang</span>:[java]]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+           <span class="hljs-keyword">not</span>(out(<span class="hljs-string">'created'</span>).count().<span class="hljs-keyword">is</span>(gt(<span class="hljs-number">1</span>))).values(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">1.</span>乔什创建了两个项目，而没有任何项目
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">marko</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">vadas</span>
+==&gt;</span>peter</code></pre>
+
+
+
+<h4 id="option">Option</h4>
+
+<ul>
+<li>An option to a branch() or choose().</li>
+</ul>
+
+
+
+<h4 id="optional">Optional</h4>
+
+<ul>
+<li>如果它产生的结果，否则返回调用元件</li>
+<li>返回指定遍历的结果identity()。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs cs">gremlin&gt; g.V(<span class="hljs-number">2</span>).optional(<span class="hljs-keyword">out</span>(<span class="hljs-string">'knows'</span>)) <span class="hljs-comment">//1.vadas没有离开的知识边缘，所以vadas被返回。</span>
+==&gt;v[<span class="hljs-number">2</span>]
+gremlin&gt; g.V(<span class="hljs-number">2</span>).optional(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'knows'</span>)) <span class="hljs-comment">//2.vadas确实有一个传入知识边缘，所以marko被返回。</span>
+==&gt;v[<span class="hljs-number">1</span>]</code></pre>
+
+
+
+<h4 id="or-或者">Or 或者</h4>
+
+<ul>
+<li>This or（）：确保了提供遍历中的至少一个产生的结果</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().<span class="hljs-keyword">or</span>(
+            __.outE(<span class="hljs-string">'created'</span>),
+            __.inE(<span class="hljs-string">'created'</span>).count().<span class="hljs-keyword">is</span>(gt(<span class="hljs-number">1</span>))).
+              values(<span class="hljs-string">'name'</span>)
+=<span class="hljs-function">=&gt;</span><span class="hljs-function"><span class="hljs-title">marko</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">lop</span>
+==&gt;</span><span class="hljs-function"><span class="hljs-title">josh</span>
+==&gt;</span>peter</code></pre>
+
+<ul>
+<li>一个中间符号可以被使用。尽管用中缀表示法，只有两次遍历可以在一起。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs php">gremlin&gt; g.V().where(outE(<span class="hljs-string">'created'</span>).<span class="hljs-keyword">or</span>().outE(<span class="hljs-string">'knows'</span>)).values(<span class="hljs-string">'name'</span>)
+==&gt;marko
+==&gt;josh
+==&gt;peter</code></pre>
+
+
+
+<h4 id="order-排序">Order 排序</h4>
+
+<ul>
+<li>当遍历流的对象需要排序时</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().values('name').order()
+=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;peter
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;vadas
+</span>gremlin&gt; g.V().values('name').order().by(decr)
+=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>gremlin&gt; g.V().hasLabel('person').order().by('age', incr).values('name')
+=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;peter</span></code></pre>
+
+<ul>
+<li>遍历中最遍历的对象之一是Element。元素可以具有与其关联的属性（即键/值对）。在许多情况下，需要根据元素属性的比较对元素遍历流进行排序。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().values('name')
+=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>gremlin&gt; g.V().order().by('name',incr).values('name')
+=<span class="ruby">=&gt;josh
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;peter
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;vadas
+</span>gremlin&gt; g.V().order().by('name',decr).values('name')
+=<span class="ruby">=&gt;vadas
+</span>=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;peter
+</span>=<span class="ruby">=&gt;marko
+</span>=<span class="ruby">=&gt;lop
+</span>=<span class="ruby">=&gt;josh</span></code></pre>
+
+<ul>
+<li>可以用来order(local)排序当前的本地对象，而不是整个遍历流。这适用于 Collection- 和Map- 类型的对象。对于任何其他对象，该对象将保持不变。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs axapta">gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).fold().<span class="hljs-keyword">order</span>(local).<span class="hljs-keyword">by</span>(decr) <span class="hljs-comment">//1。年龄被收集到一个列表中，然后该列表按降序排列。</span>
+==&gt;[<span class="hljs-number">35</span>,<span class="hljs-number">32</span>,<span class="hljs-number">29</span>,<span class="hljs-number">27</span>]
+gremlin&gt; g.V().values(<span class="hljs-string">'age'</span>).<span class="hljs-keyword">order</span>(local).<span class="hljs-keyword">by</span>(decr) <span class="hljs-comment">//2。年龄不收集，因此order(local)是“排序”单个整数，因此，什么都不做。</span>
+==&gt;<span class="hljs-number">29</span>
+==&gt;<span class="hljs-number">27</span>
+==&gt;<span class="hljs-number">32</span>
+==&gt;<span class="hljs-number">35</span>
+gremlin&gt; g.V().groupCount().<span class="hljs-keyword">by</span>(inE().<span class="hljs-keyword">count</span>()).<span class="hljs-keyword">order</span>(local).<span class="hljs-keyword">by</span>(values, decr) <span class="hljs-comment">//3。该groupCount()地图是由它的递减顺序值进行排序。</span>
+==&gt;[<span class="hljs-number">1</span>:<span class="hljs-number">3</span>,<span class="hljs-number">0</span>:<span class="hljs-number">2</span>,<span class="hljs-number">3</span>:<span class="hljs-number">1</span>]
+gremlin&gt; g.V().groupCount().<span class="hljs-keyword">by</span>(inE().<span class="hljs-keyword">count</span>()).<span class="hljs-keyword">order</span>(local).<span class="hljs-keyword">by</span>(keys, incr) <span class="hljs-comment">//4。该groupCount()图是通过其在递增的顺序排列的键。</span>
+==&gt;[<span class="hljs-number">0</span>:<span class="hljs-number">2</span>,<span class="hljs-number">1</span>:<span class="hljs-number">3</span>,<span class="hljs-number">3</span>:<span class="hljs-number">1</span>]</code></pre>
+
+
+
+<h4 id="path-路径">Path 路径</h4>
+
+<ul>
+<li>遍历器在遍历中的一系列步骤中进行转换。遍历器的历史通过用path()-step（地图）检查其路径来实现。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().out().out().values('name')
+=<span class="ruby">=&gt;ripple
+</span>=<span class="ruby">=&gt;lop
+</span>gremlin&gt; g.V().out().out().values('name').path()
+=<span class="ruby">=&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">4</span>],v[<span class="hljs-number">5</span>],ripple]
+</span>=<span class="ruby">=&gt;[v[<span class="hljs-number">1</span>],v[<span class="hljs-number">4</span>],v[<span class="hljs-number">3</span>],lop]</span></code></pre>
+
+<ul>
+<li>可以通过循环方式后处理路径的元素by()。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V().out().out().path().<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>).<span class="hljs-keyword">by</span>(<span class="hljs-string">'age'</span>)
+=<span class="hljs-function">=&gt;</span>[marko,<span class="hljs-number">32</span>,ripple]
+=<span class="hljs-function">=&gt;</span>[marko,<span class="hljs-number">32</span>,lop]</code></pre>
+
+
+
+<h4 id="profile">Profile</h4>
+
+<ul>
+<li>为了让开发者介绍他们的遍历，以确定像步运行，计数等统计信息</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs perl">gremlin&gt; g.V().out(<span class="hljs-string">'created'</span>).repeat(both()).<span class="hljs-keyword">times</span>(<span class="hljs-number">3</span>).hasLabel(<span class="hljs-string">'person'</span>).<span class="hljs-keyword">values</span>(<span class="hljs-string">'age'</span>).sum().profile()
+==&gt;Traversal Metrics
+Step                                                               Count  Traversers       Time (ms)    % Dur
+=============================================================================================================
+TinkerGraphStep(vertex,[])                                             <span class="hljs-number">6</span>           <span class="hljs-number">6</span>           <span class="hljs-number">0</span>.<span class="hljs-number">076</span>    <span class="hljs-number">11.61</span>
+VertexStep(OUT,[created],vertex)                                       <span class="hljs-number">4</span>           <span class="hljs-number">4</span>           <span class="hljs-number">0</span>.<span class="hljs-number">108</span>    <span class="hljs-number">16.39</span>
+NoOpBarrierStep(<span class="hljs-number">2500</span>)                                                  <span class="hljs-number">4</span>           <span class="hljs-number">2</span>           <span class="hljs-number">0</span>.<span class="hljs-number">050</span>     <span class="hljs-number">7.63</span>
+VertexStep(BOTH,vertex)                                               <span class="hljs-number">10</span>           <span class="hljs-number">4</span>           <span class="hljs-number">0</span>.<span class="hljs-number">045</span>     <span class="hljs-number">6.86</span>
+NoOpBarrierStep(<span class="hljs-number">2500</span>)                                                 <span class="hljs-number">10</span>           <span class="hljs-number">3</span>           <span class="hljs-number">0</span>.<span class="hljs-number">025</span>     <span class="hljs-number">3.81</span>
+VertexStep(BOTH,vertex)                                               <span class="hljs-number">24</span>           <span class="hljs-number">7</span>           <span class="hljs-number">0</span>.<span class="hljs-number">02</span>8     <span class="hljs-number">4.34</span>
+NoOpBarrierStep(<span class="hljs-number">2500</span>)                                                 <span class="hljs-number">24</span>           <span class="hljs-number">5</span>           <span class="hljs-number">0</span>.<span class="hljs-number">030</span>     <span class="hljs-number">4.62</span>
+VertexStep(BOTH,vertex)                                               <span class="hljs-number">58</span>          <span class="hljs-number">11</span>           <span class="hljs-number">0</span>.<span class="hljs-number">040</span>     <span class="hljs-number">6.15</span>
+NoOpBarrierStep(<span class="hljs-number">2500</span>)                                                 <span class="hljs-number">58</span>           <span class="hljs-number">6</span>           <span class="hljs-number">0</span>.<span class="hljs-number">046</span>     <span class="hljs-number">7.03</span>
+HasStep([~label.e<span class="hljs-string">q(person)</span>])                                          <span class="hljs-number">48</span>           <span class="hljs-number">4</span>           <span class="hljs-number">0</span>.<span class="hljs-number">033</span>     <span class="hljs-number">5.08</span>
+PropertiesStep([age],value)                                           <span class="hljs-number">48</span>           <span class="hljs-number">4</span>           <span class="hljs-number">0</span>.<span class="hljs-number">042</span>     <span class="hljs-number">6.37</span>
+SumGlobalStep                                                          <span class="hljs-number">1</span>           <span class="hljs-number">1</span>           <span class="hljs-number">0</span>.<span class="hljs-number">133</span>    <span class="hljs-number">20.11</span>
+                                            &gt;TOTAL                     -           -           <span class="hljs-number">0</span>.<span class="hljs-number">662</span>        -</code></pre>
+
+
+
+<h4 id="project">Project</h4>
+
+<ul>
+<li>突出的当前对象到Map</li></ul>
+
+<pre class="prettyprint"><code class=" hljs oxygene">gremlin&gt; g.V().<span class="hljs-keyword">out</span>(<span class="hljs-string">'created'</span>).
+           project(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>).
+             <span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>).
+             <span class="hljs-keyword">by</span>(__.<span class="hljs-keyword">in</span>(<span class="hljs-string">'created'</span>).count()).
+           <span class="hljs-keyword">order</span>().<span class="hljs-keyword">by</span>(<span class="hljs-keyword">select</span>(<span class="hljs-string">'b'</span>),decr).
+           <span class="hljs-keyword">select</span>(<span class="hljs-string">'a'</span>)
+==&gt;lop
+==&gt;lop
+==&gt;lop
+==&gt;ripple
+gremlin&gt; g.V().<span class="hljs-keyword">has</span>(<span class="hljs-string">'name'</span>,<span class="hljs-string">'marko'</span>).
+                        project(<span class="hljs-string">'out'</span>,<span class="hljs-string">'in'</span>).
+                          <span class="hljs-keyword">by</span>(outE().count()).
+                          <span class="hljs-keyword">by</span>(inE().count())
+==&gt;[<span class="hljs-keyword">out</span>:<span class="hljs-number">3</span>,<span class="hljs-keyword">in</span>:<span class="hljs-number">0</span>]</code></pre>
+
+
+
+<h4 id="program">Program</h4>
+
+<ul>
+<li>是“lambda”步骤GraphComputer的作业。</li>
+<li>该步骤将 VertexProgram作为参数并相应地处理传入图。</li>
+<li><p>因此，用户可以创建自己的VertexProgram并在遍历中执行它。提供给顶点程序的配置包括：</p>
+
+<ul><li><p>gremlin.vertexProgramStep.rootTraversal是PureTraversal根遍历的一种形式的序列化。</p></li>
+<li><p>gremlin.vertexProgramStep.stepId是program()正在执行的-step 的步骤字符串id 。</p></li></ul></li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g = graph.traversal().withComputer()
+=<span class="hljs-function">=&gt;</span>graphtraversalsource[tinkergraph[<span class="hljs-attribute">vertices</span>:<span class="hljs-number">6</span> <span class="hljs-attribute">edges</span>:<span class="hljs-number">6</span>], graphcomputer]
+gremlin&gt; g.V().hasLabel(<span class="hljs-string">'person'</span>).
+           program(PageRankVertexProgram.build().property(<span class="hljs-string">'rank'</span>).create(graph)).
+             order().<span class="hljs-keyword">by</span>(<span class="hljs-string">'rank'</span>, incr).
+           valueMap(<span class="hljs-string">'name'</span>, <span class="hljs-string">'rank'</span>)
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">name</span>:[marko],<span class="hljs-attribute">rank</span>:[<span class="hljs-number">0.11375510357865541</span>]]
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">name</span>:[peter],<span class="hljs-attribute">rank</span>:[<span class="hljs-number">0.11375510357865541</span>]]
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">name</span>:[vadas],<span class="hljs-attribute">rank</span>:[<span class="hljs-number">0.14598540152719106</span>]]
+=<span class="hljs-function">=&gt;</span>[<span class="hljs-attribute">name</span>:[josh],<span class="hljs-attribute">rank</span>:[<span class="hljs-number">0.14598540152719106</span>]]</code></pre>
+
+
+
+<h4 id="properties-属性">Properties 属性</h4>
+
+<ul>
+<li>提取属性Element遍历流。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V(1).properties()
+=<span class="ruby">=&gt;vp[name-&gt;marko]
+</span>=<span class="ruby">=&gt;vp[location-&gt;san diego]
+</span>=<span class="ruby">=&gt;vp[location-&gt;santa cruz]
+</span>=<span class="ruby">=&gt;vp[location-&gt;brussels]
+</span>=<span class="ruby">=&gt;vp[location-&gt;santa fe]
+</span>gremlin&gt; g.V(1).properties('location').valueMap()
+=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">1997</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2001</span>]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">2001</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2004</span>]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">2004</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2005</span>]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">2005</span>]
+</span>gremlin&gt; g.V(1).properties('location').has('endTime').valueMap()
+=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">1997</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2001</span>]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">2001</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2004</span>]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">startTime:</span><span class="hljs-number">2004</span>,<span class="hljs-symbol">endTime:</span><span class="hljs-number">2005</span>]</span></code></pre>
+
+
+
+<h4 id="propertymap">PropertyMap</h4>
+
+<ul>
+<li>步骤产生一个元素的属性的地图表示</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().propertyMap()
+=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;marko]],<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">29</span>]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;vadas]],<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">27</span>]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;lop]],<span class="hljs-symbol">lang:</span>[vp[lang-&gt;java]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;josh]],<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">32</span>]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;ripple]],<span class="hljs-symbol">lang:</span>[vp[lang-&gt;java]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">name:</span>[vp[name-&gt;peter]],<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">35</span>]]]
+</span>gremlin&gt; g.V().propertyMap('age')
+=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">29</span>]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">27</span>]]]
+</span>=<span class="ruby">=&gt;[]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">32</span>]]]
+</span>=<span class="ruby">=&gt;[]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">35</span>]]]
+</span>gremlin&gt; g.V().propertyMap('age','blah')
+=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">29</span>]]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">27</span>]]]
+</span>=<span class="ruby">=&gt;[]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">32</span>]]]
+</span>=<span class="ruby">=&gt;[]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">age:</span>[vp[age-&gt;<span class="hljs-number">35</span>]]]
+</span>gremlin&gt; g.E().propertyMap()
+=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">0</span>.<span class="hljs-number">5</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">1.0</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">0</span>.<span class="hljs-number">4</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">1.0</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">0</span>.<span class="hljs-number">4</span>]]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">weight:</span>p[weight-&gt;<span class="hljs-number">0</span>.<span class="hljs-number">2</span>]]</span></code></pre>
+
+
+
+<h4 id="range">Range</h4>
+
+<ul>
+<li>This range():当遍历器通过遍历传播时，可能只允许一定数量的它们通过.</li>
+<li>当范围的低端不符合时，对象继续迭代。在低（包含）和高（独占）范围内，发射移动器。当在高范围以上时，遍历就会脱离迭代。最后，-1高范围的使用将在低范围开始后发射剩余的移动器。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().range(0,3)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>gremlin&gt; g.V().range(1,3)
+=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>gremlin&gt; g.V().range(1, -1)
+=<span class="ruby">=&gt;v[<span class="hljs-number">2</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">4</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">6</span>]
+</span>gremlin&gt; g.V().repeat(both()).times(1000000).emit().range(6,10)
+=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">5</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">3</span>]
+</span>=<span class="ruby">=&gt;v[<span class="hljs-number">1</span>]</span></code></pre>
+
+<ul>
+<li>range()也可以应用Scope.local，在这种情况下，它在收到的收集上运行。例如，可以Map</li></ul>
+
+<pre class="prettyprint"><code class=" hljs haml">gremlin&gt; g.V().as('a').out().as('b').in().as('c').select('a','b','c').by('name').range(local,1,2)
+=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>vadas]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>josh]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>ripple]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]
+</span>=<span class="ruby">=&gt;[<span class="hljs-symbol">b:</span>lop]</span></code></pre>
+
+
+
+<h4 id="repeat">Repeat</h4>
+
+<ul>
+<li>用于遍历给予一定的休息谓词遍历。</li>
+</ul>
+
+
+
+<pre class="prettyprint"><code class=" hljs coffeescript">gremlin&gt; g.V(<span class="hljs-number">1</span>).repeat(out()).times(<span class="hljs-number">2</span>).path().<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">1.</span><span class="hljs-keyword">do</span>-<span class="hljs-keyword">while</span> semantics stating to <span class="hljs-keyword">do</span> out() <span class="hljs-number">2</span> times.
+=<span class="hljs-function">=&gt;</span>[marko,josh,ripple]
+=<span class="hljs-function">=&gt;</span>[marko,josh,lop]
+gremlin&gt; g.V().<span class="hljs-keyword">until</span>(has(<span class="hljs-string">'name'</span>,<span class="hljs-string">'ripple'</span>)).
+               repeat(out()).path().<span class="hljs-keyword">by</span>(<span class="hljs-string">'name'</span>) <span class="hljs-regexp">//</span><span class="hljs-number">2.</span><span class="hljs-keyword">while</span>-<span class="hljs-keyword">do</span>语义如果遍历器位于名为“ripple”的顶点，则声明为中断。
+=<span class="hljs-function">=&gt;</span>[marko,josh,ripple]
+=<span class="hljs-function">=&gt;</span>[josh,ripple]
+=<span class="hljs-function">=&gt;</span>[ripple]</code></pre></div></body>
+</html>
