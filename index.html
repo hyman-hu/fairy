@@ -9,24 +9,57 @@
     <script type="text/javascript" src="./js/lib/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="./js/lib/bootstrap.min.js"></script>
     <script type="text/javascript" src="./js/common/config.js"></script>
-    <script type="text/javascript" src="./js/common/common.js"></script>
-    <script type="text/javascript" src="./js/lib/md5.js"></script>
+    <script type="text/javascript" src="./js/common/auth.js"></script>
+    <script type="text/javascript" src="./js/page/index.js"></script>
 </head>
 <body>
-    <div>
-        <nav class="navbar navbar-inverse">
-            <ul class="nav nav-tabs">
-                <li role="presentation" class="active"><a href="#">Home</a></li>
-                <li role="presentation"><a href="#">Profile</a></li>
-                <li role="presentation"><a href="#">Messages</a></li>
-            </ul>
-        </nav>
-        <ol class="breadcrumb">
-            <li><a href="#">Home</a></li>
-            <li><a href="active">Library</a></li>
-            <li class="#">Data</li>
-        </ol>
+<div class="container">
+    <div class="row" id="topTile">
+        <ul class="nav nav-pills">
+            <li role="presentation" class="active" id="fairyLi"><a href="#">About My Fairy</a></li>
+            <li role="presentation" id="learnLi"><a href="#">Learning from induction</a></li>
+            <li role="presentation" id="moodLi"><a href="#">Mood notes</a></li>
+        </ul>
+    </div>
+    <hr/>
+    <div class="row" id="fairyContent">
+        <div class="jumbotron">
+            <h1>Hello, world!</h1>
+            <p>...</p>
+            <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+        </div>
+        <div class="col-xs-8">
+            <h1>目录</h1>
+        </div>
+        <div class="col-xs-4">
+            <img src="./favicon.ico" alt="">
+        </div>
+    </div>
+    <div class="row" id="learnContent">
+        <div class="jumbotron">
+            <h1>Java Learning Notes</h1>
+            <p>this is my java learning notes</p>
+        </div>
+        <h1>目录</h1>
+        <hr/>
+        <div class="col-xs-3 blog" onclick="goBlog()">
+            <div class="row">
+                <img src="./img/field-of-poppies-3415643_640.jpg" alt="美图" class="img-circle" height="100%" width="100%">
+            </div>
+            <div class="row">
+                <h4>Gradle 学习笔记</h4>
+                <span class="">介绍：</span>
+                <p class="text-primary">Gradle是一个基于Apache Ant和Apache Maven概念的项目自动化建构工具。
+                    它使用一种基于Groovy的特定领域语言来声明项目设置，而不是传统的XML。</p>
+            </div>
+        </div>
+
+
 
     </div>
+    <div class="row" id="moodContent">
+        <h1>moodContent</h1>
+    </div>
+</div>
 </body>
 </html>

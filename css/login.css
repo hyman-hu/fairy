@@ -19,11 +19,11 @@ body{
     border-radius: 10px;
 }
 #top {
-    background-color: #337AB7;
+    background-color: #ffcaf9;
     height: 80px;
     font-size: 300%;
     line-height: 80px;
-    color: #ffdf32;
+    color: #fa14ff;
 }
 .form-control{
     width: 50%;
