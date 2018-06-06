@@ -2,8 +2,8 @@
  *
  */
 window.onload = function () {
-    $("#fairyContent").hide();
-    $("#learnContent").show();
+    $("#fairyContent").show();
+    $("#learnContent").hide();
     $("#moodContent").hide();
 };
 $(document).ready(function () {
@@ -42,6 +42,6 @@ $(document).ready(function () {
     });
 });
 
-function goBlog() {
-    window.open("../fairy/page/Gradle 学习笔记.html");
+function goBlog(obj) {
+    window.open("../fairy/page/"+obj+".html");
 }

@@ -25,3 +25,6 @@ body {
 .blog:hover{
     background-color: #ffb6e3;
 }
+.jumbotron h1,p{
+    font-style: italic;
+}

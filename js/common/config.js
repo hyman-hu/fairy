@@ -1,3 +1,3 @@
 //------ setting ------
 const USERNAME = "fairy";
-const PASSWORD = "iloveyou";
+const PASSWORD = "lucky";
