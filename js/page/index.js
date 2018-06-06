@@ -1,7 +1,7 @@
 /**
  *
  */
-window.onload = function(){
+window.onload = function () {
     $("#fairyContent").hide();
     $("#learnContent").show();
     $("#moodContent").hide();
@@ -43,5 +43,5 @@ $(document).ready(function () {
 });
 
 function goBlog() {
-    window.location.href = "../fairy/page/Gradle 学习笔记.html";
+    window.open("../fairy/page/Gradle 学习笔记.html");
 }
