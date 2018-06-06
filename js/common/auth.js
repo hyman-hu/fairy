@@ -15,9 +15,9 @@ function getcookie(objname) {//获取指定名称的cookie的值
         }
     }
 }
-$(document).ready(function () {
+$(function () {
     //获取cookie中的token  判断权限
-    if (getcookie("userName") != USERNAME && getcookie("password") != hex_md5(hex_md5(PASSWORD))) {
+    if (getcookie("userName") !== USERNAME && getcookie("password") !== hex_md5(hex_md5(PASSWORD))) {
         alert("您还未登录；请先登录！");
         window.location.href = "login.html";
     }
