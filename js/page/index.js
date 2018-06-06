@@ -43,5 +43,5 @@ $(document).ready(function () {
 });
 
 function goBlog() {
-    window.location.href = "../page/Gradle 学习笔记.html";
+    window.location.href = "../fariy/page/Gradle 学习笔记.html";
 }
