@@ -15,10 +15,17 @@ function getcookie(objname) {//获取指定名称的cookie的值
         }
     }
 }
+
 $(function () {
     //获取cookie中的token  判断权限
     if (getcookie("userName") !== USERNAME || getcookie("password") !== hex_md5(hex_md5(PASSWORD))) {
         alert("您还未登录；请先登录！");
-        window.location.href = "login.html";
+        console.log(window.url);
+        let url = window.location.href;
+        if (url.indexOf("page") > 0) {
+            window.location.href = "../login.html";
+        } else {
+            window.location.href = "./login.html";
+        }
     }
 });

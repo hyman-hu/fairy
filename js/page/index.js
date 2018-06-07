@@ -3,6 +3,16 @@
  */
 $(document).ready(function () {
     /**
+     * 数据初始化
+     */
+    let tab = $("#fairyTab tbody");//获取tab
+    for(let i=0;i<FairyBlog.length;i++){
+        tab.append("<tr class='blogLink'><td><span class='text-primary' onclick='goBlog(this)'>"+FairyBlog[i].article+"</span></td>" +
+            "<td>"+FairyBlog[i].content+"</td>" +
+            "<td>"+FairyBlog[i].date+"</td></tr>");
+    }
+    $("#fairyTab").bootstrapTable({});
+    /**
      * 导航栏点击CSS改变
      */
     $("#fairyLi").click(function () {
@@ -47,5 +57,6 @@ $(document).ready(function () {
 });
 
 function goBlog(obj) {
-    window.open("../fairy/page/"+obj+".html");
+    console.log(obj.innerHTML);
+    window.open("../fairy/page/"+obj.innerHTML+".html");
 }

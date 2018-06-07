@@ -28,3 +28,18 @@ body {
 .jumbotron h1,p{
     font-style: italic;
 }
+th, td {
+    text-align: center;
+    word-wrap: break-word;
+}
+
+td {
+    font-size: 12px;
+}
+
+#tab tr:hover {
+    background-color: rgba(217, 217, 217, 0.5);
+}
+.blogLink{
+    cursor:pointer
+}
