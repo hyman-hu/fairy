@@ -4,10 +4,12 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <link href="favicon.ico" rel="shortcut icon"/>
     <title>YOU ARE MY FAIRY FOREVER</title>
+    <link rel="stylesheet" type="text/css" href="./bootstrap-table-develop/src/bootstrap-table.css">
     <link rel="stylesheet" type="text/css" href="./css/lib/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="./css/index.css">
     <script type="text/javascript" src="./js/lib/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="./js/common/auth.js"></script>
+    <script type="text/javascript" src="./bootstrap-table-develop/src/bootstrap-table.js"></script>
     <script type="text/javascript" src="./js/lib/bootstrap.min.js"></script>
     <script type="text/javascript" src="./js/common/config.js"></script>
     <script type="text/javascript" src="./js/lib/md5.js"></script>
@@ -31,23 +33,35 @@
         </div>
         <h1>目录</h1>
         <hr/>
-        <div class="col-xs-3 blog" onclick="goBlog('ToFairy')">
-            <div class="row">
-                <img src="./img/salwa-1108813.jpg" alt="美图" class="img-circle" height="300px" width="100%">
-            </div>
-            <div class="row">
-                <h4>To Fairy</h4>
-                <span class="">介绍：</span>
-                <p class="text-primary">此篇文章是第一次写给我家小仙女的情书。
-                    当时还不知道小仙女的心意，害怕失去她，害怕自己一直只是单相思。
-                所以才写了这篇情书，去表明自己的心意。</p>
-            </div>
-        </div>
+        <!--<div class="col-xs-12 blog" onclick="goBlog('ToFairy')">-->
+            <!--<div class="row">-->
+                <!--<h4>To Fairy Love Letter</h4>-->
+                <!--<span class="">介绍：</span>-->
+                <!--<p class="text-primary">此篇文章是第一次写给我家小仙女的情书。-->
+                    <!--当时还不知道小仙女的心意，害怕失去她，害怕自己一直只是单相思。-->
+                <!--所以才写了这篇情书，去表明自己的心意。</p>-->
+            <!--</div>-->
+        <!--</div>-->
+        <table data-search="true" data-pagination="true" style="table-layout:fixed" id="tab">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>date</th>
+                <th>src</th>
+                <th>ver</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
     </div>
     <div class="row hidden" id="learnContent">
         <div class="jumbotron">
             <h1>Java Learning Notes</h1>
-            <p>this is my java learning notes</p>
+            <p>this is my java learning notes,my CSDN blog address:
+                <a href="https://blog.csdn.net/m0_37204491">逍遥绝情的博客</a></p>
+            <p class="text-danger">Wish we will make progress and grow up together in the days to come</p>
         </div>
         <h1>目录</h1>
         <hr/>
