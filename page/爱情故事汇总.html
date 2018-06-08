@@ -1,342 +1,359 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>爱情故事汇总</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<style type="text/css">
-/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
-/* Author: Nicolas Hery - http://nicolashery.com */
-/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
-/* Source: https://github.com/nicolahery/markdownpad-github */
+    <title>爱情故事汇总</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="../favicon.ico" rel="shortcut icon"/>
+    <link rel="stylesheet" type="text/css" href="../css/lib/bootstrap.min.css">
+    <script type="text/javascript" src="../js/lib/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="../js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/common/auth.js"></script>
+    <script type="text/javascript" src="../js/common/config.js"></script>
+    <script type="text/javascript" src="../js/lib/md5.js"></script>
+    <style type="text/css">
+        /* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+        /* Author: Nicolas Hery - http://nicolashery.com */
+        /* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+        /* Source: https://github.com/nicolahery/markdownpad-github */
 
-/* RESET
-=============================================================================*/
+        /* RESET
+        =============================================================================*/
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
+        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
 
-/* BODY
-=============================================================================*/
+        /* BODY
+        =============================================================================*/
 
-body {
-  font-family: Helvetica, arial, freesans, clean, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #333;
-  background-color: #fff;
-  padding: 20px;
-  max-width: 960px;
-  margin: 0 auto;
-}
+        body {
+            font-family: Helvetica, arial, freesans, clean, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
 
-body>*:first-child {
-  margin-top: 0 !important;
-}
+        body > *:first-child {
+            margin-top: 0 !important;
+        }
 
-body>*:last-child {
-  margin-bottom: 0 !important;
-}
+        body > *:last-child {
+            margin-bottom: 0 !important;
+        }
 
-/* BLOCKS
-=============================================================================*/
+        /* BLOCKS
+        =============================================================================*/
 
-p, blockquote, ul, ol, dl, table, pre {
-  margin: 15px 0;
-}
+        p, blockquote, ul, ol, dl, table, pre {
+            margin: 15px 0;
+        }
 
-/* HEADERS
-=============================================================================*/
+        /* HEADERS
+        =============================================================================*/
 
-h1, h2, h3, h4, h5, h6 {
-  margin: 20px 0 10px;
-  padding: 0;
-  font-weight: bold;
-  -webkit-font-smoothing: antialiased;
-}
+        h1, h2, h3, h4, h5, h6 {
+            margin: 20px 0 10px;
+            padding: 0;
+            font-weight: bold;
+            -webkit-font-smoothing: antialiased;
+        }
 
-h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
-  font-size: inherit;
-}
+        h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+            font-size: inherit;
+        }
 
-h1 {
-  font-size: 28px;
-  color: #000;
-}
+        h1 {
+            font-size: 28px;
+            color: #000;
+        }
 
-h2 {
-  font-size: 24px;
-  border-bottom: 1px solid #ccc;
-  color: #000;
-}
+        h2 {
+            font-size: 24px;
+            border-bottom: 1px solid #ccc;
+            color: #000;
+        }
 
-h3 {
-  font-size: 18px;
-}
+        h3 {
+            font-size: 18px;
+        }
 
-h4 {
-  font-size: 16px;
-}
+        h4 {
+            font-size: 16px;
+        }
 
-h5 {
-  font-size: 14px;
-}
+        h5 {
+            font-size: 14px;
+        }
 
-h6 {
-  color: #777;
-  font-size: 14px;
-}
+        h6 {
+            color: #777;
+            font-size: 14px;
+        }
 
-body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
-  margin-top: 0;
-  padding-top: 0;
-}
+        body > h2:first-child, body > h1:first-child, body > h1:first-child + h2, body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
+            margin-top: 0;
+            padding-top: 0;
+        }
 
-a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
-  margin-top: 0;
-  padding-top: 0;
-}
+        a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+            margin-top: 0;
+            padding-top: 0;
+        }
 
-h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
-  margin-top: 10px;
-}
+        h1 + p, h2 + p, h3 + p, h4 + p, h5 + p, h6 + p {
+            margin-top: 10px;
+        }
 
-/* LINKS
-=============================================================================*/
+        /* LINKS
+        =============================================================================*/
 
-a {
-  color: #4183C4;
-  text-decoration: none;
-}
+        a {
+            color: #4183C4;
+            text-decoration: none;
+        }
 
-a:hover {
-  text-decoration: underline;
-}
+        a:hover {
+            text-decoration: underline;
+        }
 
-/* LISTS
-=============================================================================*/
+        /* LISTS
+        =============================================================================*/
 
-ul, ol {
-  padding-left: 30px;
-}
+        ul, ol {
+            padding-left: 30px;
+        }
 
-ul li > :first-child, 
-ol li > :first-child, 
-ul li ul:first-of-type, 
-ol li ol:first-of-type, 
-ul li ol:first-of-type, 
-ol li ul:first-of-type {
-  margin-top: 0px;
-}
+        ul li > :first-child,
+        ol li > :first-child,
+        ul li ul:first-of-type,
+        ol li ol:first-of-type,
+        ul li ol:first-of-type,
+        ol li ul:first-of-type {
+            margin-top: 0px;
+        }
 
-ul ul, ul ol, ol ol, ol ul {
-  margin-bottom: 0;
-}
+        ul ul, ul ol, ol ol, ol ul {
+            margin-bottom: 0;
+        }
 
-dl {
-  padding: 0;
-}
+        dl {
+            padding: 0;
+        }
 
-dl dt {
-  font-size: 14px;
-  font-weight: bold;
-  font-style: italic;
-  padding: 0;
-  margin: 15px 0 5px;
-}
+        dl dt {
+            font-size: 14px;
+            font-weight: bold;
+            font-style: italic;
+            padding: 0;
+            margin: 15px 0 5px;
+        }
 
-dl dt:first-child {
-  padding: 0;
-}
+        dl dt:first-child {
+            padding: 0;
+        }
 
-dl dt>:first-child {
-  margin-top: 0px;
-}
+        dl dt > :first-child {
+            margin-top: 0px;
+        }
 
-dl dt>:last-child {
-  margin-bottom: 0px;
-}
+        dl dt > :last-child {
+            margin-bottom: 0px;
+        }
 
-dl dd {
-  margin: 0 0 15px;
-  padding: 0 15px;
-}
+        dl dd {
+            margin: 0 0 15px;
+            padding: 0 15px;
+        }
 
-dl dd>:first-child {
-  margin-top: 0px;
-}
+        dl dd > :first-child {
+            margin-top: 0px;
+        }
 
-dl dd>:last-child {
-  margin-bottom: 0px;
-}
+        dl dd > :last-child {
+            margin-bottom: 0px;
+        }
 
-/* CODE
-=============================================================================*/
+        /* CODE
+        =============================================================================*/
 
-pre, code, tt {
-  font-size: 12px;
-  font-family: Consolas, "Liberation Mono", Courier, monospace;
-}
+        pre, code, tt {
+            font-size: 12px;
+            font-family: Consolas, "Liberation Mono", Courier, monospace;
+        }
 
-code, tt {
-  margin: 0 0px;
-  padding: 0px 0px;
-  white-space: nowrap;
-  border: 1px solid #eaeaea;
-  background-color: #f8f8f8;
-  border-radius: 3px;
-}
+        code, tt {
+            margin: 0 0px;
+            padding: 0px 0px;
+            white-space: nowrap;
+            border: 1px solid #eaeaea;
+            background-color: #f8f8f8;
+            border-radius: 3px;
+        }
 
-pre>code {
-  margin: 0;
-  padding: 0;
-  white-space: pre;
-  border: none;
-  background: transparent;
-}
+        pre > code {
+            margin: 0;
+            padding: 0;
+            white-space: pre;
+            border: none;
+            background: transparent;
+        }
 
-pre {
-  background-color: #f8f8f8;
-  border: 1px solid #ccc;
-  font-size: 13px;
-  line-height: 19px;
-  overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
-}
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            line-height: 19px;
+            overflow: auto;
+            padding: 6px 10px;
+            border-radius: 3px;
+        }
 
-pre code, pre tt {
-  background-color: transparent;
-  border: none;
-}
+        pre code, pre tt {
+            background-color: transparent;
+            border: none;
+        }
 
-kbd {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    background-color: #DDDDDD;
-    background-image: linear-gradient(#F1F1F1, #DDDDDD);
-    background-repeat: repeat-x;
-    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
-    border-image: none;
-    border-radius: 2px 2px 2px 2px;
-    border-style: solid;
-    border-width: 1px;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    line-height: 10px;
-    padding: 1px 4px;
-}
+        kbd {
+            -moz-border-bottom-colors: none;
+            -moz-border-left-colors: none;
+            -moz-border-right-colors: none;
+            -moz-border-top-colors: none;
+            background-color: #DDDDDD;
+            background-image: linear-gradient(#F1F1F1, #DDDDDD);
+            background-repeat: repeat-x;
+            border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+            border-image: none;
+            border-radius: 2px 2px 2px 2px;
+            border-style: solid;
+            border-width: 1px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 10px;
+            padding: 1px 4px;
+        }
 
-/* QUOTES
-=============================================================================*/
+        /* QUOTES
+        =============================================================================*/
 
-blockquote {
-  border-left: 4px solid #DDD;
-  padding: 0 15px;
-  color: #777;
-}
+        blockquote {
+            border-left: 4px solid #DDD;
+            padding: 0 15px;
+            color: #777;
+        }
 
-blockquote>:first-child {
-  margin-top: 0px;
-}
+        blockquote > :first-child {
+            margin-top: 0px;
+        }
 
-blockquote>:last-child {
-  margin-bottom: 0px;
-}
+        blockquote > :last-child {
+            margin-bottom: 0px;
+        }
 
-/* HORIZONTAL RULES
-=============================================================================*/
+        /* HORIZONTAL RULES
+        =============================================================================*/
 
-hr {
-  clear: both;
-  margin: 15px 0;
-  height: 0px;
-  overflow: hidden;
-  border: none;
-  background: transparent;
-  border-bottom: 4px solid #ddd;
-  padding: 0;
-}
+        hr {
+            clear: both;
+            margin: 15px 0;
+            height: 0px;
+            overflow: hidden;
+            border: none;
+            background: transparent;
+            border-bottom: 4px solid #ddd;
+            padding: 0;
+        }
 
-/* TABLES
-=============================================================================*/
+        /* TABLES
+        =============================================================================*/
 
-table th {
-  font-weight: bold;
-}
+        table th {
+            font-weight: bold;
+        }
 
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 6px 13px;
-}
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 6px 13px;
+        }
 
-table tr {
-  border-top: 1px solid #ccc;
-  background-color: #fff;
-}
+        table tr {
+            border-top: 1px solid #ccc;
+            background-color: #fff;
+        }
 
-table tr:nth-child(2n) {
-  background-color: #f8f8f8;
-}
+        table tr:nth-child(2n) {
+            background-color: #f8f8f8;
+        }
 
-/* IMAGES
-=============================================================================*/
+        /* IMAGES
+        =============================================================================*/
 
-img {
-  max-width: 100%
-}
-</style>
+        img {
+            max-width: 100%
+        }
+    </style>
 </head>
 <body>
+<div class="nav navbar-right">
+    <button class="btn-primary" onclick="goBack()">返回主页</button>
+</div>
 <h3>爱情故事汇总</h3>
 <blockquote>
-<p>想每天给我家仙女讲故事，想一直讲到老。</p>
+    <p>想每天给我家仙女讲故事，想一直讲到老。</p>
 </blockquote>
 <h4>自己决定生命的景色</h4>
 <blockquote>
-<p>飘逝的心雨，疏淡着过往。搁浅在心中的春，殷羡地遥望着青春的彼岸。生活的履践，梦想的荫凉，让季节在陌上渐次凋零。记忆是心的年轮，把昨天拽在手心，驳落的影子，曾经的沉重，压弯了我的腰，流离的思绪，蛰伏的惆怅，流落于尘世，几许清寒。</p>
+    <p>
+        飘逝的心雨，疏淡着过往。搁浅在心中的春，殷羡地遥望着青春的彼岸。生活的履践，梦想的荫凉，让季节在陌上渐次凋零。记忆是心的年轮，把昨天拽在手心，驳落的影子，曾经的沉重，压弯了我的腰，流离的思绪，蛰伏的惆怅，流落于尘世，几许清寒。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>路，也许漫长，蜗居在人生的驿站沉睡，我成了青春的遗物。无语的期盼稀释着梦寐的眷顾，心中的微笑淡得让人找不到痕迹。有些真情太短，一夕可变;有些东西无关生活，却是一种最美的心情。</p>
+    <p>路，也许漫长，蜗居在人生的驿站沉睡，我成了青春的遗物。无语的期盼稀释着梦寐的眷顾，心中的微笑淡得让人找不到痕迹。有些真情太短，一夕可变;有些东西无关生活，却是一种最美的心情。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>生活没有脚本，却往往比电影还曲折离奇，花芯的破碎是花最美丽的时刻，不知该怀疑眼睛，还是该怀疑生活。爱情，是一朵生长在悬崖边上的花儿，相聚，有时就是为了分别。很难接受爱情的不屑，没有人会将自己一辈子的情赌在一份不确定的爱上，真正的悲伤是任何语言都无法表达清楚的。</p>
+    <p>
+        生活没有脚本，却往往比电影还曲折离奇，花芯的破碎是花最美丽的时刻，不知该怀疑眼睛，还是该怀疑生活。爱情，是一朵生长在悬崖边上的花儿，相聚，有时就是为了分别。很难接受爱情的不屑，没有人会将自己一辈子的情赌在一份不确定的爱上，真正的悲伤是任何语言都无法表达清楚的。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>轮回的辗转，隔世离空，虚空的向往，让梦想撒野，亦步亦趋的影子，悠思怀远，那刻在光阴上的文字，欲语还休。有些人，终究是要说再见的，谁在我的青春驻足?视线有了累的痕迹。品尝剥离的苦痛，遮掩日子里满是磕碰的印痕，感怀在时间里奔跑，谁把光阴剪成了烟花?算了吧，放了吧，醒了吧，好了吧，让过去成为过去吧，有一种重逢可以无奈擦肩，为约定找个蜕变的借口，曾经红尘，有你来过，不必去问明天我们是否遗憾。</p>
+    <p>
+        轮回的辗转，隔世离空，虚空的向往，让梦想撒野，亦步亦趋的影子，悠思怀远，那刻在光阴上的文字，欲语还休。有些人，终究是要说再见的，谁在我的青春驻足?视线有了累的痕迹。品尝剥离的苦痛，遮掩日子里满是磕碰的印痕，感怀在时间里奔跑，谁把光阴剪成了烟花?算了吧，放了吧，醒了吧，好了吧，让过去成为过去吧，有一种重逢可以无奈擦肩，为约定找个蜕变的借口，曾经红尘，有你来过，不必去问明天我们是否遗憾。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>春雨歇住碎步，心语在跋涉，夜的翅膀在飞翔，触摸季节的吟唱，静守一方心池。遣散阴霾的雾霭，黑夜过后的光芒真的很美。</p>
+    <p>春雨歇住碎步，心语在跋涉，夜的翅膀在飞翔，触摸季节的吟唱，静守一方心池。遣散阴霾的雾霭，黑夜过后的光芒真的很美。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>拂岸春晓，清风划过心幽，其实转身是一种再生。世界上最强的就是生命，爱是生命的舞蹈，截一段春色给文字，在春间篆刻下希望的名字。耳盈鸟语，目满青枝，那抹浅淡的温暖，无法拒绝开放的执着。</p>
+    <p>拂岸春晓，清风划过心幽，其实转身是一种再生。世界上最强的就是生命，爱是生命的舞蹈，截一段春色给文字，在春间篆刻下希望的名字。耳盈鸟语，目满青枝，那抹浅淡的温暖，无法拒绝开放的执着。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>有花的世界是静美的，绿红相扶，异馥诱人，将希望合成一章散韵，让一方花语轻飘红尘，用文字来充实心灵的饱满，用翰墨绽放着孕育了三冬的心事。游目骋怀，记忆中的流沙在时间里沉蕴，思潮搁浅着潮汐。风动叶舞，春——流曳着动人的旋律，种植一池柔情，让心季无雨。</p>
+    <p>
+        有花的世界是静美的，绿红相扶，异馥诱人，将希望合成一章散韵，让一方花语轻飘红尘，用文字来充实心灵的饱满，用翰墨绽放着孕育了三冬的心事。游目骋怀，记忆中的流沙在时间里沉蕴，思潮搁浅着潮汐。风动叶舞，春——流曳着动人的旋律，种植一池柔情，让心季无雨。</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>笔花灵舞，希望传枝拂叶落进春海中不想上岸，悬一缕祝福，挂一线祝愿，坐拥春天明媚的感动。己心妩媚，则世界妩媚，就让我自己决定生命的景色吧。不必为逝去的季节遗憾，他们只是搁浅在我的生命延长线里。冬去春来，往复更替，该来的总归要来，该去的总归要去，每个季节都有自己的景致。风满衣袖待花开，让我们顺其自然，都成为风景里最美丽的花吧!</p>
+    <p>
+        笔花灵舞，希望传枝拂叶落进春海中不想上岸，悬一缕祝福，挂一线祝愿，坐拥春天明媚的感动。己心妩媚，则世界妩媚，就让我自己决定生命的景色吧。不必为逝去的季节遗憾，他们只是搁浅在我的生命延长线里。冬去春来，往复更替，该来的总归要来，该去的总归要去，每个季节都有自己的景致。风满衣袖待花开，让我们顺其自然，都成为风景里最美丽的花吧!</p>
 </blockquote>
-<hr />
+<hr/>
 <blockquote>
-<p>转身，抬头望天，整片天空呈现最美的姿态。春风宿醉，为生命着色，爱在心知，愈久弥香。愿生命花间成蝶飞得更美，我期待着……</p>
+    <p>转身，抬头望天，整片天空呈现最美的姿态。春风宿醉，为生命着色，爱在心知，愈久弥香。愿生命花间成蝶飞得更美，我期待着……</p>
 </blockquote>
-<hr />
+<hr/>
 <h4>爱是唯一的金子</h4>
 <blockquote>
-<p>故事发生在中世纪的德国，那年是1141年。巴伐利亚公爵沃尔夫被困在了他的温斯堡中。城堡之外是康纳德国王的军队。</p>
-<p>这次围攻已历时数月，沃尔夫知道现在他只能投降了。信使开始在两军之间穿梭，投降的条款列出来了、条件被应允了。沃尔夫和他的军官们开始准备将自己交给死敌。但是温斯堡里的女人们还没打算放弃一切。她们给康纳德国王送去音讯，要求许诺保证漫无边际斯堡垒内所有女人的安全，并允许也们离开时带走她们双手能够带走的所有珍贵的东西。</p>
-<p>她们的要求被允诺了，接着，城堡的大门打开了。女人们走了出来—城堡外所有的人都大吃一惊。她们手里拿的不是金子，也不是珠宝。每个女人的腰都弯得低低的，实在是不堪双手抱着的她们的男人的重负。她们要救出自己的男人，不能让自己的男人受到这支胜利的军队的报复。康纳德这位慷慨而仁慈的国王据说被这一壮举感动得流下了眼泪。他立即就答应了这些女人，保证他们的丈夫是完全的安全与自由。接着，国王邀请所有的人参加宴会，并与巴伐利亚公爵签订了和平条约。</p>
+    <p>故事发生在中世纪的德国，那年是1141年。巴伐利亚公爵沃尔夫被困在了他的温斯堡中。城堡之外是康纳德国王的军队。</p>
+    <p>
+        这次围攻已历时数月，沃尔夫知道现在他只能投降了。信使开始在两军之间穿梭，投降的条款列出来了、条件被应允了。沃尔夫和他的军官们开始准备将自己交给死敌。但是温斯堡里的女人们还没打算放弃一切。她们给康纳德国王送去音讯，要求许诺保证漫无边际斯堡垒内所有女人的安全，并允许也们离开时带走她们双手能够带走的所有珍贵的东西。</p>
+    <p>
+        她们的要求被允诺了，接着，城堡的大门打开了。女人们走了出来—城堡外所有的人都大吃一惊。她们手里拿的不是金子，也不是珠宝。每个女人的腰都弯得低低的，实在是不堪双手抱着的她们的男人的重负。她们要救出自己的男人，不能让自己的男人受到这支胜利的军队的报复。康纳德这位慷慨而仁慈的国王据说被这一壮举感动得流下了眼泪。他立即就答应了这些女人，保证他们的丈夫是完全的安全与自由。接着，国王邀请所有的人参加宴会，并与巴伐利亚公爵签订了和平条约。</p>
 </blockquote>
 
 </body>
