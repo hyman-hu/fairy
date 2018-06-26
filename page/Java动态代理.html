@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>周末菜肴</title>
+    <title>Java动态代理</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link href="../favicon.ico" rel="shortcut icon"/>
     <link rel="stylesheet" type="text/css" href="../css/lib/bootstrap.min.css">
@@ -305,141 +305,122 @@
 <div class="nav navbar-right">
     <button class="btn-primary" onclick="goBack()">返回主页</button>
 </div>
-<h3>粉蒸排骨做法</h3>
+<h2>Java动态代理</h2>
+<blockquote>
+    <p>Java动态代理机制的出现，使得 Java
+        开发人员不用手工编写代理类，只要简单地指定一组接口及委托类对象，便能动态地获得代理类。代理类会负责将所有的方法调用分派到委托对象上反射执行，在分派执行的过程中，开发人员还可以按需调整委托类对象及其功能，这是一套非常灵活有弹性的代理框架。下面我们开始动态代理的学习。</p>
+</blockquote>
+<h4>简要说明</h4>
 <ul>
+    <li>在java的动态代理机制中，有两个重要的类或接口，一个是 InvocationHandler(Interface)、另一个则是 Proxy(Class)。</li>
     <li>
-        备料：
+        InvocationHandler(interface)的描述：
         <ul>
-            <li>
-                主料
-                <ul>
-                    <li>排骨</li>
-                    <li>土豆</li>
-                    <li>五香蒸肉米粉</li>
-                </ul>
+            <li>每一个动态代理类都必须要实现InvocationHandler这个接口，并且每个代理类的实例都关联到了一个handler，当我们通过代理对象调用
+                一个方法的时候，这个方法的调用就会被转发为由InvocationHandler这个接口的 invoke 方法来进行调用。我们来看看InvocationHandler这个接口的唯一一个方法 invoke 方法：
             </li>
             <li>
-                辅料
+                <code>Object invoke(Object proxy, Method method, Object[] args) throws Throwable</code>
                 <ul>
-                    <li>姜</li>
-                    <li>蒜</li>
-                    <li>葱花</li>
-                </ul>
-            </li>
-            <li>
-                配料
-                <ul>
-                    <li>白胡椒粉</li>
-                    <li>糖</li>
-                    <li>老抽</li>
-                    <li>蚝油</li>
+                    <li>proxy： 指代我们所代理的那个真实对象</li>
+                    <li>method： 指代的是我们所要调用真实对象的方法的Method对象</li>
+                    <li>args： 指代的是调用真实对象某个方法时接受的参数</li>
+                    <li>返回的Object是指真实对象方法的返回类型</li>
                 </ul>
             </li>
         </ul>
     </li>
     <li>
-        步骤：
+        Proxy(Class)的描述：
+        <ul>
+            <li>Proxy这个类的作用就是用来动态创建一个代理对象。我们经常使用的是newProxyInstance这个方法：</li>
+            <li>
+                <code>public static Object newProxyInstance(ClassLoader loader, Class&lt;?&gt;[] interfaces,
+                    InvocationHandler h) throws IllegalArgumentException</code>
+                <ul>
+                    <li>一个ClassLoader对象，定义了由哪个ClassLoader对象来对生成的代理对象进行加载</li>
+                    <li>一个Interface对象的数组，表示的是我将要给我需要代理的对象提供一组什么接口</li>
+                    <li>一个InvocationHandler对象，表示的是当我这个动态代理对象在调用方法的时候，会关联到哪一个InvocationHandler对象上</li>
+                    <li>返回结果的理解： 一个代理对象的实例</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        反射概念：
+        <ul>
+            <li>反射机制就是可以把一个类,类的成员(函数,属性),当成一个对象来操作,希望读者能理解,也就是说,类,类的成员,我们在运行的时候还可以动态地去操作他们.</li>
+        </ul>
+    </li>
+    <li>
+        <p>动态代理实现步骤</p>
         <ul>
             <li>
-                清洗：
+                具体步骤是：
                 <ul>
-                    <li>
-                        排骨斩小块放清水里泡去血水
-                        <ul>
-                            <li>
-                                小诀窍：
-                                <ul>
-                                    <li>加食盐然后温水抓洗</li>
-                                </ul>
-                            </li>
-                        </ul>
+                    <li>a. 实现InvocationHandler接口创建自己的调用处理器</li>
+                    <li>b. 给Proxy类提供ClassLoader和代理接口类型数组创建动态代理类</li>
+                    <li>c. 以调用处理器类型为参数，利用反射机制得到动态代理类的构造函数</li>
+                    <li>d. 以调用处理器对象为参数，利用动态代理类的构造函数创建动态代理类对象
                     </li>
                 </ul>
             </li>
             <li>
-                腌制：
-                <ul>
-                    <li>加糖、生抽、老抽、姜、蒜、白胡椒粉、蚝油料酒拌匀。</li>
-                    <li>如果喜欢吃辣的，腌肉时加些辣椒粉或者辣椒酱。</li>
-                    <li>拌匀后腌制约30分钟</li>
-                </ul>
+<pre>
+// InvocationHandlerImpl 实现了 InvocationHandler 接口，并能实现方法调用从代理类到委托类的分派转发  
+// 其内部通常包含指向委托类实例的引用，用于真正执行分派转发过来的方法调用  
+InvocationHandler handler = new InvocationHandlerImpl(..);   
+
+// 通过 Proxy 为包括 Interface 接口在内的一组接口动态创建代理类的类对象  
+Class clazz = Proxy.getProxyClass(classLoader, new Class[] { Interface.class, ... });   
+
+// 通过反射从生成的类对象获得构造函数对象  
+Constructor constructor = clazz.getConstructor(new Class[] { InvocationHandler.class });   
+
+// 通过构造函数对象创建动态代理类实例  
+Interface Proxy = (Interface)constructor.newInstance(new Object[] { handler });   
+</pre>
             </li>
+            <li>eg:</li>
             <li>
-                拌粉：
-                <ul>
-                    <li>
-                        拌入蒸肉米粉。
-                        <ul>
-                            <li>米粉适量均匀涂抹即可</li>
-                        </ul>
-                    </li>
-                    <li>再加少许水或高汤拌匀，这样蒸出来不会干。</li>
-                </ul>
+<pre>
+       // 动态代理
+       ClassLoader classLoader = Interface.class.getClassLoader();
+       Class<?>[] interfaces = new Class[] { Interface.class };
+       InvocationHandler handler = new DynamicProxyHandler(realObject);
+       Interface proxy = (Interface) Proxy.newProxyInstance(classLoader, interfaces, handler);
+
+       System.out.println("in dynamicproxyMain proxy: " + proxy.getClass());
+       consumer(proxy);    
+</pre>
             </li>
+        </ul>
+    </li>
+    <li>
+        动态代理优点：
+        <ul>
             <li>
-                土豆：
-                <ul>
-                    <li>土豆去皮削块，加少许盐拌匀，将排骨铺在土豆上面。</li>
-                </ul>
+                动态代理与静态代理相比较，最大的好处是接口中声明的所有方法都被转移到调用处理器一个集中的方法中处理（InvocationHandler.invoke）。这样，在接口方法数量比较多的时候，我们可以进行灵活处理，而不需要像静态代理那样每一个方法进行中转。在本示例中看不出来，因为invoke方法体内嵌入了具体的外围业务（记录任务处理前后时间并计算时间差），实际中可以类似Spring
+                AOP那样配置外围业务。
             </li>
-            <li>
-                蒸：
-                <ul>
-                    <li>高压锅的话20几分钟左右。</li>
-                    <li>普通锅，大火蒸1个小时。</li>
-                    <li>出锅后，撒上葱花。</li>
-                </ul>
+        </ul>
+    </li>
+    <li>
+        动态代理缺点：
+        <ul>
+            <li>诚然，Proxy 已经设计得非常优美，但是还是有一点点小小的遗憾之处，那就是它始终无法摆脱仅支持 interface
+                代理的桎梏，因为它的设计注定了这个遗憾。回想一下那些动态生成的代理类的继承关系图，它们已经注定有一个共同的父类叫 Proxy。Java 的继承机制注定了这些动态代理类们无法实现对 class
+                的动态代理，原因是多继承在 Java 中本质上就行不通。
             </li>
         </ul>
     </li>
 </ul>
-<h3>狼牙土豆做法</h3>
+<h3>枚举</h3>
 <ul>
-    <li>
-        备料：
-        <ul>
-            <li>
-                主料：
-                <ul>
-                    <li>土豆</li>
-                </ul>
-            </li>
-            <li>
-                辅料：
-                <ul>
-                    <li>盐</li>
-                    <li>白糖</li>
-                    <li>生抽</li>
-                    <li>醋</li>
-                    <li>蒜泥</li>
-                    <li>小葱</li>
-                    <li>红油辣子</li>
-                    <li>花椒粉</li>
-                    <li>香油</li>
-                    <li>鸡精</li>
-                    <li>香菜</li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-    <li>
-        步骤：
-        <ul>
-            <li>1.土豆去皮，用波纹刀切条，在清水中泡一下洗去淀粉，捞出
-            </li>
-            <li>2.放适量植物油，多放一点油哈，放入土豆条炸</li>
-            <li>3.炸至土豆熟透就可以了，捞出控油</li>
-            <li>4.捞出后放入生抽，醋，盐，白糖，香油，红油辣子</li>
-            <li>5.花椒粉，鸡精，葱花，香菜碎</li>
-            <li>6.拌匀</li>
-        </ul>
-    </li>
-    <li>
-        小窍门：
-        <ul>
-            <li>炸土豆时，喜欢口感软一点就多炸一会儿，喜欢脆一点就少炸一会儿，但是一定要炸熟透，土豆没熟透是要中毒的哦，</li>
-            <li>一定要注意。把不准的可以用牙签穿一下判断熟透没有。</li>
-        </ul>
+    <li>enum这个关键字，可以理解为跟class差不多，这也个单独的类。</li>
+    <li>里面有属性，有构造方法，有getter，也可以有setter，但是一般都是构造传参数。还有其他自定义方法。那么在这些东西前面的，以逗号隔开的，最后以分号结尾的，这部分叫做，这个枚举的实例。</li>
+    <li>也可以理解为，class new
+        出来的实例对象。这下就好理解了。只是，class，new对象，可以自己随便new，想几个就几个，而这个enum关键字，他就不行，他的实例对象，只能在这个enum里面体现。也就是说，他对应的实例是有限的。这也就是枚举的好处了，限制了某些东西的范围，举个栗子：一年四季，只能有春夏秋冬，你要是字符串表示的话，那就海了去了，但是，要用枚举类型的话，你在enum的大括号里面把所有的选项，全列出来，那么这个季节的属性，对应的值，只能在里面挑。不能有其他的。
     </li>
 </ul>
 
